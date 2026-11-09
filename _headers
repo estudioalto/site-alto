@@ -1,0 +1,11 @@
+# Netlify: pede ao Google para não indexar as áreas de login e o simulador
+/cliente.html
+  X-Robots-Tag: noindex, nofollow
+/cliente
+  X-Robots-Tag: noindex, nofollow
+/colaborador/*
+  X-Robots-Tag: noindex, nofollow
+/simulador.html
+  X-Robots-Tag: noindex, nofollow
+/simulador
+  X-Robots-Tag: noindex, nofollow
