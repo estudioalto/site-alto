@@ -507,7 +507,7 @@ const FIREBASE = { apiKey: "", authDomain: "", projectId: "", appId: "" };
   const $ = s => document.querySelector(s);
   const esc = s => String(s ?? "").replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
   const dataBR = iso => { if(!iso) return ""; const [y,m,d] = String(iso).slice(0,10).split("-"); return d && m ? `${d}/${m}/${y}` : iso; };
-  const demo = new URLSearchParams(location.search).has("demo");
+  const demo = new URLSearchParams(location.search).has("demo") || location.hash === "#demo";
   const ligado = !!(FIREBASE.apiKey && FIREBASE.projectId);
 
   function msg(t){ $("#cliMsg").textContent = t || ""; }
