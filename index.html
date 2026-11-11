@@ -316,6 +316,7 @@ footer{background:rgba(255,252,248,.86)}
 .foot .osm{font-family:var(--mono);font-size:.6rem;letter-spacing:.06em;text-transform:uppercase;opacity:.55}
 .foot .osm a{color:inherit}
 </style>
+<link rel="stylesheet" href="projetos.css">
 </head>
 <body>
 <div class="vivo" aria-hidden="true"><canvas class="vivo-c"></canvas><canvas class="vivo-ga"></canvas><canvas class="vivo-gb"></canvas></div>
@@ -360,61 +361,22 @@ footer{background:rgba(255,252,248,.86)}
     </div>
   </div>
 
-  <!-- PROJETOS -->
-  <section id="projetos">
+  <!-- PROJETOS: um projeto em destaque por vez (vem da pasta SITE › PROJETOS do Drive) -->
+  <section id="projetos" class="dq-sec">
     <div class="wrap">
       <div class="sec-head">
         <h2>Projetos selecionados</h2>
-        <span class="mono">Pranchas 01—06</span>
-      </div>
-
-      <div class="filters" role="group" aria-label="Filtrar projetos por categoria">
-        <button class="filter active" data-f="todos">Todos</button>
-        <button class="filter" data-f="residencial">Residencial</button>
-        <button class="filter" data-f="interiores">Interiores</button>
-        <button class="filter" data-f="comercial">Comercial</button>
-        <button class="filter" data-f="reforma">Reformas</button>
-      </div>
-
-      <div class="grid" id="grid">
-        <a class="plate reveal" data-cat="residencial" href="#contato">
-          <div class="mat">
-            <div class="img"><div class="art a1"></div><div class="ht"></div></div>
-            <div class="legend"><h3>Casa Pátio</h3><span class="mono">PR—01 · Residencial · Jundiaí, SP</span></div>
-          </div>
-        </a>
-        <a class="plate reveal" data-cat="interiores" href="#contato">
-          <div class="mat">
-            <div class="img"><div class="art a2"></div><div class="ht"></div></div>
-            <div class="legend"><h3>Apartamento Vertente</h3><span class="mono">PR—02 · Interiores · Campinas, SP</span></div>
-          </div>
-        </a>
-        <a class="plate reveal" data-cat="comercial" href="#contato">
-          <div class="mat">
-            <div class="img"><div class="art a3"></div><div class="ht"></div></div>
-            <div class="legend"><h3>Café Meio-Dia</h3><span class="mono">PR—03 · Comercial · Jundiaí, SP</span></div>
-          </div>
-        </a>
-        <a class="plate reveal" data-cat="residencial" href="#contato">
-          <div class="mat">
-            <div class="img"><div class="art a4"></div><div class="ht"></div></div>
-            <div class="legend"><h3>Casa Mirante</h3><span class="mono">PR—04 · Residencial · Itupeva, SP</span></div>
-          </div>
-        </a>
-        <a class="plate reveal" data-cat="reforma" href="#contato">
-          <div class="mat">
-            <div class="img"><div class="art a5"></div><div class="ht"></div></div>
-            <div class="legend"><h3>Loft Centro</h3><span class="mono">PR—05 · Reforma · Jundiaí, SP</span></div>
-          </div>
-        </a>
-        <a class="plate reveal" data-cat="interiores" href="#contato">
-          <div class="mat">
-            <div class="img"><div class="art a6"></div><div class="ht"></div></div>
-            <div class="legend"><h3>Residência Horizonte</h3><span class="mono">PR—06 · Interiores · Vinhedo, SP</span></div>
-          </div>
-        </a>
+        <a class="mono" href="projetos.html">Ver todos →</a>
       </div>
     </div>
+    <div class="destaque sk" id="destaque" role="button" tabindex="0" aria-label="Projeto em destaque: abrir galeria">
+      <img alt=""><img alt="">
+      <div class="dq-leg" id="dqLeg" hidden>
+        <div><h3 id="dqTit"></h3><span class="mono" id="dqSub"></span></div>
+        <div class="dq-nav"><button type="button" data-dq="-1" aria-label="Projeto anterior">←</button><button type="button" data-dq="1" aria-label="Próximo projeto">→</button></div>
+      </div>
+    </div>
+    <div class="wrap dq-foot"><a class="cta" href="projetos.html">Ver todos os projetos →</a></div>
   </section>
 
   <!-- ESTÚDIO -->
@@ -634,18 +596,6 @@ function toggleMenu(btn){
 }
 document.querySelectorAll('#menu a').forEach(a=>a.addEventListener('click',()=>{
   document.getElementById('menu').classList.remove('open');
-}));
-
-/* filtros de categoria */
-const filters=document.querySelectorAll('.filter');
-filters.forEach(f=>f.addEventListener('click',()=>{
-  filters.forEach(x=>x.classList.remove('active'));
-  f.classList.add('active');
-  const cat=f.dataset.f;
-  document.querySelectorAll('.plate').forEach(p=>{
-    const show=cat==='todos'||p.dataset.cat===cat;
-    p.classList.toggle('hide',!show);
-  });
 }));
 
 /* scroll reveal */
@@ -904,18 +854,24 @@ function step(list, dt, now){
     b.wob *= Math.exp(-dt*1.4);
   });
 }
-let t0 = performance.now(), prev = 0;
+let t0 = performance.now(), prev = 0, zoom = 1;
+const mapaEl = document.querySelector('.contact .map') || document.querySelector('.map');
 function desenha(now){
   const dt = Math.min(.05, (now - (prev || now))/1000); prev = now;
   step(blobs, dt, now);
   const t = calmo ? 0 : ((now - t0)/1000/st.loop) % 1;
   const dynOf = list => list.map(b => ({ox:b.ox, oy:b.oy, mk:1 + b.wob}));
+  // perto do mapa do rodapé as amebas encolhem (em torno do centro da tela)
+  const mr = mapaEl ? mapaEl.getBoundingClientRect() : null;
+  const alvo = mr ? 1 - 0.55*Math.max(0, Math.min(1, (innerHeight - mr.top)/(innerHeight*0.7))) : 1;
+  zoom += (alvo - zoom)*(calmo ? 1 : Math.min(1, dt*5));
+  const vs = view.s*zoom, vtx = view.w/2 - (view.w/2 - view.tx)*zoom, vty = view.h/2 - (view.h/2 - view.ty)*zoom;
   cx.setTransform(1,0,0,1,0,0); cx.globalAlpha = 1; cx.fillStyle = rgba(AREIA,1); cx.fillRect(0,0,view.w,view.h);
-  const L = drawBlobs(off('layer', view.w, view.h), sh, P, t, view.s, view.tx, view.ty, dynOf(blobs));
+  const L = drawBlobs(off('layer', view.w, view.h), sh, P, t, vs, vtx, vty, dynOf(blobs));
   if(fade){
     let p = Math.min(1, (now - fade.start)/1400); p = p < .5 ? 2*p*p : 1 - Math.pow(-2*p + 2, 2)/2;
     step(fade.old.blobs, dt, now);
-    const Lo = drawBlobs(off('layerOld', view.w, view.h), fade.old.sh, fade.old.P, t, view.s, view.tx, view.ty, dynOf(fade.old.blobs));
+    const Lo = drawBlobs(off('layerOld', view.w, view.h), fade.old.sh, fade.old.P, t, vs, vtx, vty, dynOf(fade.old.blobs));
     const mx = off('mix', view.w, view.h);
     mx.globalCompositeOperation = 'source-over'; mx.globalAlpha = 1; mx.clearRect(0,0,view.w,view.h);
     mx.globalCompositeOperation = 'lighter';
@@ -926,7 +882,7 @@ function desenha(now){
     if(p >= 1) fade = null;
   } else cx.drawImage(L.canvas, 0, 0);
 }
-addEventListener('scroll', () => { hero.classList.toggle('vivo-rolou', scrollY > innerHeight*0.6) }, {passive:true});
+addEventListener('scroll', () => { hero.classList.toggle('vivo-rolou', scrollY > innerHeight*0.6); if (calmo && view) desenha(performance.now()); }, {passive:true});
 function frame(now){
   requestAnimationFrame(frame);
   if(!visivel || now - prev < 1000/FPS - 2) return;
@@ -962,158 +918,6 @@ addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => {
   document.addEventListener('keydown', e => { if (e.key === 'Escape') abre(false); });
 })();
 </script>
-<!-- projetos do Drive -->
-<style>
-/* projetos vindos do Drive */
-#grid .plate{cursor:pointer}
-#grid .plate .img{background:#d9d1c4}
-#grid .plate.sk .img{animation:skp 1.4s ease-in-out infinite}
-@keyframes skp{50%{opacity:.55}}
-.mais-proj{display:flex;justify-content:center;margin-top:2.2rem}
-.mais-proj[hidden]{display:none!important}
-.galeria{position:fixed;inset:0;z-index:200;background:#181410;color:var(--paper);display:grid;grid-template-columns:minmax(0,1fr) 340px;opacity:0;transition:opacity .25s}
-.galeria.on{opacity:1}
-.galeria[hidden],.galeria [hidden]{display:none!important}
-.gal-palco{position:relative;display:flex;align-items:center;justify-content:center;padding:4.2rem 4.5rem 3.4rem;min-height:0}
-.gal-palco img{max-width:100%;max-height:100%;object-fit:contain;display:block;user-select:none;transition:opacity .25s}
-.gal-palco img.ld{opacity:.25}
-.gal-seta{position:absolute;top:50%;transform:translateY(-50%);width:3rem;height:3rem;border-radius:50%;border:1px solid rgba(255,252,248,.25);background:rgba(33,27,22,.5);color:var(--paper);font-size:1.3rem;cursor:pointer;display:flex;align-items:center;justify-content:center}
-.gal-seta:hover{background:var(--alto);border-color:var(--alto)}
-.gal-seta.ant{left:1rem}.gal-seta.prox{right:1rem}
-.gal-cont{position:absolute;left:0;right:0;bottom:1.1rem;text-align:center;color:rgba(255,252,248,.6)}
-.gal-x{position:absolute;top:1rem;right:1rem;z-index:2;width:2.6rem;height:2.6rem;border-radius:50%;border:1px solid rgba(255,252,248,.25);background:none;color:var(--paper);font-size:1.2rem;cursor:pointer}
-.gal-x:hover{background:var(--alto);border-color:var(--alto)}
-.gal-txt{border-left:1px solid #3a352d;padding:4.2rem 2rem 2rem;overflow:auto}
-.gal-txt .mono{color:var(--alto);display:block;margin-bottom:.8rem}
-.gal-txt h3{font-size:1.7rem;letter-spacing:-.02em;line-height:1.1;margin:0 0 .4rem;color:var(--paper)}
-.gal-txt .sub{color:#B8B0A4;margin:0 0 1.4rem}
-.gal-txt dl{display:grid;grid-template-columns:auto 1fr;gap:.45rem 1rem;margin:0 0 1.6rem;padding:1rem 0;border-top:1px solid #3a352d;border-bottom:1px solid #3a352d}
-.gal-txt dt{color:#9a938a;font-size:.85rem}.gal-txt dd{margin:0;font-size:.95rem}
-.gal-txt p{color:#DCD7CC;line-height:1.6;font-size:.98rem;margin:0 0 1rem}
-.gal-tumbs{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:1.4rem}
-.gal-tumbs button{width:3.4rem;height:2.6rem;padding:0;border:2px solid transparent;border-radius:4px;overflow:hidden;cursor:pointer;background:#2b2620;opacity:.6}
-.gal-tumbs button[aria-current="true"]{border-color:var(--alto);opacity:1}
-.gal-tumbs img{width:100%;height:100%;object-fit:cover;display:block}
-@media (max-width:860px){
-  .galeria{grid-template-columns:1fr;grid-template-rows:minmax(0,62vh) auto;overflow:auto}
-  .gal-palco{padding:3.6rem .8rem 2.6rem}
-  .gal-seta{width:2.5rem;height:2.5rem}.gal-seta.ant{left:.4rem}.gal-seta.prox{right:.4rem}
-  .gal-txt{border-left:0;border-top:1px solid #3a352d;padding:1.6rem 1.2rem 2.4rem}
-}
-</style>
-<div class="galeria" id="galeria" hidden role="dialog" aria-modal="true" aria-labelledby="galTit">
-  <div class="gal-palco">
-    <button class="gal-x" data-g="x" aria-label="Fechar">✕</button>
-    <button class="gal-seta ant" data-g="ant" aria-label="Imagem anterior">←</button>
-    <img id="galImg" alt="">
-    <button class="gal-seta prox" data-g="prox" aria-label="Próxima imagem">→</button>
-    <div class="gal-cont mono" id="galCont"></div>
-  </div>
-  <aside class="gal-txt"><span class="mono" id="galCod"></span><h3 id="galTit"></h3><p class="sub" id="galSub"></p><dl id="galDl"></dl><div id="galDesc"></div><div class="gal-tumbs" id="galTumbs"></div></aside>
-</div>
-<script>
-/* projetos do site: vêm da pasta SITE › PROJETOS do Drive (script "alto · Projetos do site").
-   Enquanto PROJETOS_URL estiver vazio, ficam os cards que estão no HTML. */
-(() => {
-const PROJETOS_URL = 'https://script.google.com/macros/s/AKfycbxdhnMk08NMd5UKvvilB5NZsnrH5aSGfmjwzejaleCaIUpaoGVa_dYnEjDKsU-BYCCyNw/exec';
-const MOSTRAR = 9;            // cards antes do "ver mais"
-if (!PROJETOS_URL) return;
-const grid = document.getElementById('grid'); if (!grid) return;
-const img = (id, w) => 'https://lh3.googleusercontent.com/d/' + id + '=w' + w;
-const esc = s => String(s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const MIN = /^(de|da|do|das|dos|e|em|com|para)$/i;
-// "LOREM IPSUM" → "Lorem Ipsum"; sigla sozinha (RGS, FIJ, REB) fica em maiúsculas
-const palavra = (w, i, frase) => {
-  if (!w || /^\(?\d/.test(w) || w === '&') return w;
-  if (i > 0 && MIN.test(w)) return w.toLowerCase();
-  return w.toLowerCase().replace(/^(\(?)(\p{L})/u, (m, a, b) => a + b.toUpperCase());
-};
-const bonito = (s, frase) => {
-  const ws = s.trim().split(/\s+/);
-  if (ws.length === 1 && /^[A-ZÀ-Ý]{2,3}$/.test(ws[0])) return ws[0];
-  return ws.map((w, i) => frase && i > 0 && !/^[A-ZÀ-Ý]{2,3}$/.test(w) ? w.toLowerCase() : palavra(w, i)).join(' ');
-};
-const CATS = {residencial: 'Residencial', interiores: 'Interiores', comercial: 'Comercial', reforma: 'Reforma'};
-function categoria(p){
-  const c = (p.categoria || '').toLowerCase();
-  for (const k in CATS) if (c.startsWith(k.slice(0, 5))) return k;
-  const n = (p.nome + ' ' + p.pasta).toUpperCase();
-  if (/REFORMA/.test(n)) return 'reforma';
-  if (/RESID[ÊE]NCIA/.test(n)) return 'residencial';
-  if (/\bAP\b|APARTAMENTO|STUDIO|INTERIOR/.test(n)) return 'interiores';
-  return 'comercial';
-}
-function titulo(p){
-  if (p.nome) return {t: p.nome.trim(), sub: ''};          // nome escrito no info.txt: vale como está
-  const seg = p.pasta.split('•').map(s => s.trim()).filter(Boolean);
-  const t = [seg.shift()];
-  while (seg.length && /^\d+$/.test(seg[0])) t.push(seg.shift());   // "TEJU • 01 • ..." → "Teju 01"
-  return {t: bonito(t.join(' ')), sub: seg.map(s => bonito(s, true)).join(' · ')};
-}
-let LISTA = [];
-// esqueleto enquanto carrega
-const velhos = grid.innerHTML;
-grid.innerHTML = Array.from({length: 6}, () => '<div class="plate sk"><div class="mat"><div class="img"></div></div></div>').join('');
-fetch(PROJETOS_URL).then(r => r.json()).then(d => {
-  LISTA = (d.projetos || []).map((p, i) => ({...p, ...titulo(p), cat: categoria(p), cod: 'PR—' + String(i + 1).padStart(2, '0')}));
-  if (!LISTA.length) throw new Error('vazio');
-  grid.innerHTML = LISTA.map((p, i) => `<a class="plate in${i >= MOSTRAR ? ' extra' : ''}" data-cat="${p.cat}" data-i="${i}" href="#projetos"${i >= MOSTRAR ? ' hidden' : ''}>
-    <div class="mat"><div class="img"><img src="${img(p.imagens[0], 1000)}" alt="${esc(p.t)}" loading="lazy" decoding="async"></div>
-    <div class="legend"><h3>${esc(p.t)}${p.sub ? ` <span style="opacity:.75;font-weight:400">· ${esc(p.sub)}</span>` : ''}</h3><span class="mono">${[p.cod, CATS[p.cat], p.cidade].filter(Boolean).map(esc).join(' · ')}</span></div></div></a>`).join('');
-  const sh = document.querySelector('#projetos .sec-head .mono'); if (sh) sh.textContent = 'Pranchas 01—' + String(LISTA.length).padStart(2, '0');
-  if (LISTA.length > MOSTRAR){
-    const w = document.createElement('div'); w.className = 'mais-proj';
-    w.innerHTML = `<button class="cta" type="button" style="border:0;cursor:pointer">Ver todos os ${LISTA.length} projetos</button>`;
-    grid.after(w);
-    w.querySelector('button').onclick = () => { grid.querySelectorAll('.extra').forEach(e => e.hidden = false); w.hidden = true; grid.classList.add('todos'); };
-  }
-  // filtros: ao filtrar, mostra todos os daquela categoria
-  document.querySelectorAll('.filter').forEach(f => f.addEventListener('click', () => {
-    const tudo = f.dataset.f !== 'todos' || grid.classList.contains('todos');
-    grid.querySelectorAll('.extra').forEach(e => e.hidden = !tudo);
-    const m = document.querySelector('.mais-proj'); if (m) m.hidden = tudo;
-  }));
-}).catch(() => { grid.innerHTML = velhos; });
-
-/* galeria */
-const G = document.getElementById('galeria'), GI = document.getElementById('galImg');
-let P = null, k = 0, ultimoFoco = null;
-function mostrar(n){
-  k = (n + P.imagens.length) % P.imagens.length;
-  GI.classList.add('ld'); GI.onload = () => GI.classList.remove('ld');
-  GI.src = img(P.imagens[k], 1800); GI.alt = P.t + ' — imagem ' + (k + 1);
-  document.getElementById('galCont').textContent = String(k + 1).padStart(2, '0') + ' / ' + String(P.imagens.length).padStart(2, '0');
-  document.querySelectorAll('#galTumbs button').forEach((b, i) => b.setAttribute('aria-current', i === k));
-  [1, -1].forEach(d => { const id = P.imagens[(k + d + P.imagens.length) % P.imagens.length]; new Image().src = img(id, 1800); });
-}
-function abrir(i){
-  P = LISTA[i]; if (!P) return; ultimoFoco = document.activeElement;
-  document.getElementById('galCod').textContent = P.cod + ' · ' + CATS[P.cat];
-  document.getElementById('galTit').textContent = P.t;
-  document.getElementById('galSub').textContent = P.sub;
-  document.getElementById('galSub').hidden = !P.sub;
-  const dl = [['Local', P.cidade], ['Ano', P.ano], ['Área', P.area]].filter(x => x[1]);
-  const D = document.getElementById('galDl'); D.innerHTML = dl.map(([a, b]) => `<dt>${a}</dt><dd>${esc(b)}</dd>`).join(''); D.hidden = !dl.length;
-  document.getElementById('galDesc').innerHTML = (P.descricao || '').split(/\n\s*\n/).map(t => `<p>${esc(t).replace(/\n/g, '<br>')}</p>`).join('');
-  document.getElementById('galTumbs').innerHTML = P.imagens.length > 1 ? P.imagens.map((id, j) => `<button data-t="${j}" aria-label="Imagem ${j + 1}"><img src="${img(id, 160)}" alt="" loading="lazy"></button>`).join('') : '';
-  G.querySelectorAll('.gal-seta').forEach(b => b.hidden = P.imagens.length < 2);
-  G.hidden = false; requestAnimationFrame(() => G.classList.add('on'));
-  document.documentElement.style.overflow = 'hidden';
-  mostrar(0); G.querySelector('.gal-x').focus();
-}
-function fechar(){ G.classList.remove('on'); setTimeout(() => { G.hidden = true; GI.src = ''; }, 250); document.documentElement.style.overflow = ''; if (ultimoFoco) ultimoFoco.focus(); }
-grid.addEventListener('click', e => { const a = e.target.closest('.plate[data-i]'); if (!a) return; e.preventDefault(); abrir(+a.dataset.i); });
-G.addEventListener('click', e => {
-  const b = e.target.closest('[data-g],[data-t]');
-  if (!b){ if (e.target === G || e.target.classList.contains('gal-palco')) fechar(); return; }
-  if (b.dataset.t != null) return mostrar(+b.dataset.t);
-  ({x: fechar, ant: () => mostrar(k - 1), prox: () => mostrar(k + 1)})[b.dataset.g]();
-});
-addEventListener('keydown', e => { if (G.hidden) return; if (e.key === 'Escape') fechar(); if (e.key === 'ArrowLeft') mostrar(k - 1); if (e.key === 'ArrowRight') mostrar(k + 1); });
-let x0 = null; GI.addEventListener('touchstart', e => x0 = e.touches[0].clientX, {passive: true});
-GI.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.changedTouches[0].clientX - x0; if (Math.abs(dx) > 40) mostrar(k + (dx < 0 ? 1 : -1)); x0 = null; });
-})();
-</script>
-
+<script src="projetos.js" defer></script>
 </body>
 </html>
