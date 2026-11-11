@@ -1080,10 +1080,10 @@ let P = null, k = 0, ultimoFoco = null;
 function mostrar(n){
   k = (n + P.imagens.length) % P.imagens.length;
   GI.classList.add('ld'); GI.onload = () => GI.classList.remove('ld');
-  GI.src = img(P.imagens[k], 2200); GI.alt = P.t + ' — imagem ' + (k + 1);
+  GI.src = img(P.imagens[k], 1800); GI.alt = P.t + ' — imagem ' + (k + 1);
   document.getElementById('galCont').textContent = String(k + 1).padStart(2, '0') + ' / ' + String(P.imagens.length).padStart(2, '0');
   document.querySelectorAll('#galTumbs button').forEach((b, i) => b.setAttribute('aria-current', i === k));
-  [1, -1].forEach(d => { const id = P.imagens[(k + d + P.imagens.length) % P.imagens.length]; new Image().src = img(id, 2200); });
+  [1, -1].forEach(d => { const id = P.imagens[(k + d + P.imagens.length) % P.imagens.length]; new Image().src = img(id, 1800); });
 }
 function abrir(i){
   P = LISTA[i]; if (!P) return; ultimoFoco = document.activeElement;
