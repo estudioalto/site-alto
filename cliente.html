@@ -323,8 +323,16 @@ input[type=range]::-moz-range-thumb{
 .cli-area,.cli-guia,.cli-faq,.cli-contato{padding:7vh 0;border-top:1px solid var(--haze)}
 .cli-card{border:1px solid var(--haze);border-radius:16px;padding:clamp(1.2rem,3vw,2rem);background:linear-gradient(140deg,color-mix(in srgb,var(--alto) 7%,transparent),transparent 60%);display:flex;flex-direction:column;gap:1rem;align-items:flex-start;max-width:640px}
 .cli-lead{font-size:1.2rem;font-weight:700;letter-spacing:-.01em}
-.cli-mail{width:100%;display:flex;flex-direction:column;gap:.6rem;margin-top:.6rem;padding-top:1rem;border-top:1px solid var(--haze)}
-.cli-mail label{color:var(--alto-deep)}
+.cli-sub{margin-top:-.4rem;opacity:.75}
+.cli-form{width:100%;max-width:380px;display:flex;flex-direction:column;gap:.6rem}
+.cli-form input{font:inherit;padding:.75rem 1.1rem;border-radius:999px;border:1px solid var(--haze);background:var(--paper);color:var(--ink)}
+.cli-form input:focus{outline:2px solid var(--alto);outline-offset:1px}
+.cli-form .chip{justify-content:center;cursor:pointer;border:0}
+.cli-links{display:flex;gap:1.2rem;flex-wrap:wrap;font-size:.9rem}
+.cli-links button{background:none;border:0;padding:0;font:inherit;color:var(--alto-deep);text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.cli-ou{display:flex;align-items:center;gap:.8rem;width:100%;max-width:380px;opacity:.6}
+.cli-ou::before,.cli-ou::after{content:"";flex:1;height:1px;background:var(--haze)}
+.cli-msg.ok{color:#2e7d32}
 .cli-row{display:flex;gap:.6rem;flex-wrap:wrap}
 .cli-row input{flex:1;min-width:220px;font:inherit;padding:.7rem 1rem;border-radius:999px;border:1px solid var(--haze);background:var(--paper);color:var(--ink)}
 .cli-row input:focus{outline:2px solid var(--alto);outline-offset:1px}
@@ -400,16 +408,18 @@ input[type=range]::-moz-range-thumb{
 
       <!-- sem login -->
       <div class="cli-card" id="cliLogin">
-        <p class="cli-lead">Entre para ver o andamento do seu projeto.</p>
-        <button class="chip solid" id="cliGoogle" type="button">Entrar com Google</button>
-        <form class="cli-mail" id="cliMailForm">
-          <label class="mono" for="cliMail">Não usa Google? Receba um link de acesso por e-mail</label>
-          <div class="cli-row">
-            <input id="cliMail" type="email" required placeholder="seu@email.com" autocomplete="email">
-            <button class="chip" type="submit">Enviar link</button>
-          </div>
+        <p class="cli-lead" id="cliTit">Entre para ver o andamento do seu projeto.</p>
+        <p class="cli-sub" id="cliSub">Use o e-mail que você passou para a alto.</p>
+        <form class="cli-form" id="cliForm" novalidate>
+          <input id="cliMail" type="email" required placeholder="seu e-mail" autocomplete="email">
+          <input id="cliSenha" type="password" placeholder="senha" autocomplete="current-password">
+          <input id="cliSenha2" type="password" placeholder="repita a senha" autocomplete="new-password" hidden>
+          <button class="chip solid" id="cliBt" type="submit">Entrar</button>
         </form>
+        <div class="cli-links"><button type="button" data-modo="criar">Primeiro acesso</button><button type="button" data-modo="esqueci">Esqueci a senha</button><button type="button" data-modo="entrar" hidden>← Voltar para entrar</button></div>
         <p class="cli-msg mono" id="cliMsg" role="status"></p>
+        <div class="cli-ou mono" id="cliOu">ou</div>
+        <button class="chip" id="cliGoogle" type="button">Entrar com Google</button>
       </div>
 
       <!-- logado -->
@@ -562,34 +572,76 @@ const FIREBASE = { apiKey: "", authDomain: "", projectId: "", appId: "" };
   const auth = firebase.auth(), db = firebase.firestore();
   auth.languageCode = "pt";
 
+  const ERROS = {"auth/invalid-email": "E-mail inválido.", "auth/missing-password": "Digite a senha.", "auth/invalid-credential": "E-mail ou senha incorretos.",
+    "auth/wrong-password": "E-mail ou senha incorretos.", "auth/user-not-found": "E-mail ou senha incorretos.",
+    "auth/email-already-in-use": "Esse e-mail já tem acesso. Use “Esqueci a senha” se não lembra.", "auth/weak-password": "Use pelo menos 8 caracteres na senha.",
+    "auth/too-many-requests": "Muitas tentativas. Espere alguns minutos e tente de novo.",
+    "auth/account-exists-with-different-credential": "Esse e-mail já entra de outro jeito (Google ou senha). Tente a outra opção."};
+  const erro = e => ERROS[e && e.code] || "Não foi possível continuar. Tente de novo.";
+  const volta = () => location.href.split("#")[0].split("?")[0];
+  function aviso(t, ok){ const m = $("#cliMsg"); m.textContent = t || ""; m.classList.toggle("ok", !!ok); }
+
+  // modos: entrar | criar | esqueci
+  let MODO = "entrar";
+  const TXT = {entrar: ["Entre para ver o andamento do seu projeto.", "Use o e-mail que você passou para a alto.", "Entrar"],
+    criar: ["Crie o seu acesso.", "Use o e-mail que você passou para a alto e escolha uma senha. Vamos mandar um link para confirmar o e-mail.", "Criar acesso"],
+    esqueci: ["Esqueceu a senha?", "Digite o seu e-mail e mandamos um link para criar uma senha nova.", "Mandar link"]};
+  function modo(m){
+    MODO = m; aviso("");
+    $("#cliTit").textContent = TXT[m][0]; $("#cliSub").textContent = TXT[m][1]; $("#cliBt").textContent = TXT[m][2];
+    $("#cliSenha").hidden = m === "esqueci"; $("#cliSenha2").hidden = m !== "criar";
+    $("#cliSenha").placeholder = m === "criar" ? "escolha uma senha (mín. 8 caracteres)" : "senha";
+    $("#cliSenha").autocomplete = m === "criar" ? "new-password" : "current-password";
+    document.querySelectorAll("[data-modo]").forEach(b => b.hidden = (m === "entrar") === (b.dataset.modo === "entrar"));
+    $("#cliOu").hidden = $("#cliGoogle").hidden = m !== "entrar";
+  }
+  document.querySelectorAll("[data-modo]").forEach(b => b.onclick = () => modo(b.dataset.modo));
+
+  $("#cliForm").onsubmit = async ev => {
+    ev.preventDefault(); aviso("");
+    const email = $("#cliMail").value.trim().toLowerCase(), senha = $("#cliSenha").value;
+    if (!/^\S+@\S+\.\S+$/.test(email)) return aviso("Digite um e-mail válido.");
+    try{
+      if (MODO === "esqueci"){ await auth.sendPasswordResetEmail(email, {url: volta()}); return aviso("Pronto! Se esse e-mail tiver acesso, o link chega em instantes (olhe também o spam).", true); }
+      if (MODO === "criar"){
+        if (senha.length < 8) return aviso("Use pelo menos 8 caracteres na senha.");
+        if (senha !== $("#cliSenha2").value) return aviso("As duas senhas não estão iguais.");
+        const c = await auth.createUserWithEmailAndPassword(email, senha);
+        await c.user.sendEmailVerification({url: volta()});
+        return;
+      }
+      await auth.signInWithEmailAndPassword(email, senha);
+    }catch(e){ aviso(erro(e)); }
+  };
+
   $("#cliGoogle").onclick = () => {
-    msg("");
-    auth.signInWithPopup(new firebase.auth.GoogleAuthProvider()).catch(e => {
-      if (e && e.code === "auth/popup-blocked") return auth.signInWithRedirect(new firebase.auth.GoogleAuthProvider());
-      msg("Não foi possível entrar. Tente de novo.");
+    aviso("");
+    const prov = new firebase.auth.GoogleAuthProvider(); prov.setCustomParameters({prompt: "select_account"});
+    auth.signInWithPopup(prov).catch(e => {
+      if (e && e.code === "auth/popup-blocked") return auth.signInWithRedirect(prov);
+      aviso(erro(e));
     });
   };
 
-  // login por link no e-mail (sem senha)
-  $("#cliMailForm").onsubmit = ev => {
-    ev.preventDefault();
-    const email = $("#cliMail").value.trim().toLowerCase();
-    auth.sendSignInLinkToEmail(email, { url: location.href.split("?")[0], handleCodeInApp: true })
-      .then(() => { try{ localStorage.setItem("alto.cliente.email", email); }catch(e){} msg("Pronto! Abra o link que enviamos para " + email + "."); })
-      .catch(() => msg("Não foi possível enviar o link. Confira o e-mail e tente de novo."));
-  };
-  if (auth.isSignInWithEmailLink(location.href)){
-    let email = ""; try{ email = localStorage.getItem("alto.cliente.email") || ""; }catch(e){}
-    if (!email) email = (prompt("Confirme o seu e-mail para entrar:") || "").trim().toLowerCase();
-    if (email) auth.signInWithEmailLink(email, location.href)
-      .then(() => history.replaceState(null, "", location.pathname))
-      .catch(() => msg("Este link expirou. Peça um novo."));
+  function confirmar(user){
+    $("#cliPainel").hidden = true; $("#cliLogin").hidden = false;
+    $("#cliForm").hidden = true; document.querySelector(".cli-links").hidden = true; $("#cliOu").hidden = $("#cliGoogle").hidden = true;
+    $("#cliTit").textContent = "Confirme o seu e-mail.";
+    $("#cliSub").innerHTML = `Mandamos um link para <b>${esc(user.email)}</b>. Clique nele e depois volte aqui. Olhe também a caixa de spam.`;
+    let box = $("#cliCf");
+    if (!box){ box = document.createElement("div"); box.id = "cliCf"; box.className = "cli-links"; $("#cliMsg").before(box); }
+    box.hidden = false;
+    box.innerHTML = `<button type="button" id="cfOk">Já confirmei</button><button type="button" id="cfRe">Mandar de novo</button><button type="button" id="cfSair">Sair</button>`;
+    $("#cfOk").onclick = async () => { await user.reload(); if (auth.currentUser.emailVerified){ await user.getIdToken(true); location.reload(); } else aviso("Ainda não aparece como confirmado. Clicou no link do e-mail?"); };
+    $("#cfRe").onclick = () => user.sendEmailVerification({url: volta()}).then(() => aviso("Enviamos de novo.", true)).catch(e => aviso(erro(e)));
+    $("#cfSair").onclick = () => auth.signOut().then(() => location.reload());
   }
 
   $("#cliSair").onclick = () => auth.signOut();
 
   auth.onAuthStateChanged(user => {
     if (!user){ $("#cliPainel").hidden = true; $("#cliLogin").hidden = false; return; }
+    if (!user.emailVerified) return confirmar(user);
     const email = (user.email || "").toLowerCase();
     $("#cliProjetos").innerHTML = `<p class="mono">Carregando…</p>`;
     db.collection("clientes").doc(email).get()
