@@ -413,11 +413,16 @@ footer{background:rgba(255,252,248,.86)}
       <h3>Equipe</h3>
       <span class="mono">Quem faz a alto</span>
     </div>
+    <div class="sala-wrap"><canvas id="sala" role="img" aria-label="A equipe da alto trabalhando na sala do estúdio, em miniatura voxel."></canvas></div>
+    <p class="sala-leg mono">A nossa sala no Golden Office · ao vivo, mais ou menos</p>
     <div class="eqp-grid" id="eqpGrid" aria-live="polite"></div>
     <p class="eqp-demo mono" id="eqpDemo" hidden>Prévia com dados de exemplo · liga sozinho quando o painel estiver conectado</p>
 </div>
 
 <style>
+.sala-wrap{overflow-x:auto;margin:0 auto 0;max-width:1000px;-webkit-overflow-scrolling:touch}
+#sala{display:block;width:100%;min-width:680px;height:auto}
+.sala-leg{text-align:center;color:#9a938a;margin:.4rem 0 2.4rem;font-size:.68rem}
 /* usa as variáveis do site (--paper, --ink, --alto, --haze, --matte, --mono, --sans); valores de reserva caso falte alguma */
 #equipe{--eq-paper:var(--paper,#FFFCF8);--eq-ink:var(--ink,#211B16);--eq-alto:var(--alto,#FF6600);--eq-haze:var(--haze,#C9BEA9);--eq-matte:var(--matte,#E7E0D5);
   background:var(--eq-paper);color:var(--eq-ink);font-family:var(--sans,'Glora',system-ui,sans-serif)}
@@ -448,8 +453,7 @@ footer{background:rgba(255,252,248,.86)}
   const esc = s => String(s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
   const desenhar = (lista, demo) => {
     lista = lista.filter(p => p.visivel !== false && p.nome).sort((a, b) => (a.ordem ?? 99) - (b.ordem ?? 99));
-    if (!lista.length){ sec.hidden = true; return; }
-    sec.hidden = false;
+    grid.hidden = !lista.length; if (!lista.length) return;
     grid.innerHTML = lista.map(p => `<article class="eqp-card">
       <div class="eqp-img">${p.img ? `<img src="${esc(p.img)}" alt="${esc(p.nome)}" loading="lazy">` : ''}</div>
       <div class="eqp-leg"><h3>${esc(p.nome)}</h3><span class="mono">${esc(p.papel)}</span></div>
@@ -462,12 +466,12 @@ footer{background:rgba(255,252,248,.86)}
     fetch(`https://firestore.googleapis.com/v1/projects/${FIREBASE.projectId}/databases/(default)/documents/equipe?pageSize=60&key=${FIREBASE.apiKey}`)
       .then(r => r.ok ? r.json() : Promise.reject(r.status))
       .then(j => desenhar((j.documents || []).map(d => { const f = d.fields || {}, o = {}; Object.keys(f).forEach(k => o[k] = val(f[k])); return o; }), false))
-      .catch(() => { sec.hidden = true; });
+      .catch(() => { grid.hidden = true; });
   } else {
     // prévia: se o painel em modo demonstração publicou algo neste navegador, usa isso; senão, o exemplo
     let local = []; try{ Object.keys(localStorage).filter(k => k.startsWith('alto.equipe.')).forEach(k => local.push(JSON.parse(localStorage.getItem(k)))); }catch(e){}
     const porNome = {}; EXEMPLO.forEach(p => porNome[p.nome] = p); local.forEach(p => porNome[p.nome] = p);
-    if (MOSTRAR_EXEMPLO) desenhar(Object.values(porNome), true); else sec.hidden = true;
+    if (MOSTRAR_EXEMPLO) desenhar(Object.values(porNome), true); else grid.hidden = true;
   }
 })();
 </script>
@@ -919,5 +923,6 @@ addEventListener('resize', () => { clearTimeout(rz); rz = setTimeout(() => {
 })();
 </script>
 <script src="projetos.js" defer></script>
+<script src="sala.js" defer></script>
 </body>
 </html>

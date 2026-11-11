@@ -1196,6 +1196,7 @@ async function entrou(email, foto){
   if (!podeVer(VIEW) && VIEW !== 'inicio') VIEW = pid;
   if (store.get('view', null) == null) VIEW = pid;
   render();
+  setTimeout(salaSync, 2500);   // garante que a sala do site já nasce com a miniatura de quem entrou
 }
 // escrita no banco: cada pessoa só grava os próprios dados (as regras do Firestore garantem isso)
 let syncT = {};
@@ -1203,7 +1204,16 @@ window.__altoSync = (k, v) => {
   if (AUTH.mode !== 'firebase' || !AUTH.db) return;
   const m = /^(av|mood|timer|bio)\.(\w+)$/.exec(k); if (!m || m[2] !== AUTH.me) return;
   clearTimeout(syncT[k]); syncT[k] = setTimeout(() => AUTH.db.collection('pessoas').doc(m[2]).set({[m[1]]: v}, {merge: true}).catch(() => {}), 600);
+  if (m[1] === 'av' || m[1] === 'mood') salaSync();
 };
+// a sala do site (seção Equipe) mostra a miniatura voxel e o mood do dia de cada um: vai junto, sozinho
+function salaSync(){
+  if (AUTH.mode !== 'firebase' || !AUTH.db || !AUTH.me) return;
+  clearTimeout(syncT.sala); syncT.sala = setTimeout(() => {
+    const a = avGet(AUTH.me), av = {}; Object.keys(AV_PADRAO).forEach(k => { if (k !== 'scene' && a[k] != null) av[k] = a[k]; });
+    AUTH.db.collection('equipe').doc(AUTH.me).set({sala: {av, nome: pessoa(AUTH.me).nome, mood: store.get('mood.' + AUTH.me, null), em: Date.now()}}, {merge: true}).catch(() => {});
+  }, 900);
+}
 
 function renderMe(){
   const b = $('#btnMe'); if (!b) return;
@@ -1386,7 +1396,7 @@ function bioUI(id, P){
     const btn = $('#bioPub'); btn.disabled = true; $('#bioMsg').textContent = 'Publicando…';
     const entry = {nome: P.nome, papel: P.papel.replace(/\s*\(exemplo\)/, ''), bio: tx.value.trim().slice(0, BIO_MAX), img: snapshotAvatar(id), visivel: sh.checked, ordem: PUB.pessoas.findIndex(x => x.id === id), atualizado: Date.now()};
     try{
-      if (AUTH.mode === 'firebase') await AUTH.db.collection('equipe').doc(id).set(entry);
+      if (AUTH.mode === 'firebase') await AUTH.db.collection('equipe').doc(id).set(entry, {merge: true});
       else store.set('equipe.' + id, entry);
       store.set('bio.' + id, {txt: tx.value, show: sh.checked, pub: Date.now()});
       $('#bioMsg').textContent = AUTH.mode === 'firebase' ? 'Publicado. Já aparece no site.' : 'Publicado (demonstração: fica só neste navegador).';
