@@ -109,9 +109,21 @@ function destaque(box){
   const fila = LISTA.map((p, i) => i); for (let i = fila.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [fila[i], fila[j]] = [fila[j], fila[i]]; }
   let pos = -1, atual = null, frente = 0, timer = 0, ocupado = false;
   // carrega a capa; pula as pequenas demais para a tela cheia (e, no computador, as em pé)
-  const testar = p => new Promise(ok => { const im = new Image(); im.onload = () => ok(im.naturalWidth >= Math.min(cel ? 700 : 1300, W) && (cel || im.naturalWidth >= im.naturalHeight) ? im.src : null); im.onerror = () => ok(null); im.src = img(p.imagens[0], W); });
+  // formato de cada foto, guardado no navegador (descobre com uma miniatura de ~1 KB antes de baixar a grande)
+  let FMT = {}; try{ FMT = JSON.parse(localStorage.getItem('alto.fmt') || '{}'); }catch(e){}
+  const carregaImg = src => new Promise(ok => { const im = new Image(); im.onload = () => ok(im); im.onerror = () => ok(null); im.src = src; });
+  const formato = async id => { if (FMT[id]) return FMT[id]; const im = await carregaImg(img(id, 48)); const f = im ? (im.naturalWidth >= im.naturalHeight ? 'h' : 'v') : 'x'; FMT[id] = f; return f; };
+  const testar = async p => {
+    const ids = p.imagens.slice(0, 6);
+    const fs = await Promise.all(ids.map(formato));
+    try{ localStorage.setItem('alto.fmt', JSON.stringify(FMT)); }catch(e){}
+    const k = ids.findIndex((id, n) => fs[n] === 'h' || (cel && fs[n] === 'v'));
+    if (k < 0) return null;
+    const im = await carregaImg(img(ids[k], W));
+    return im && im.naturalWidth >= Math.min(cel ? 700 : 1300, W) ? im.src : null;
+  };
   // já deixa a próxima foto baixando enquanto esta aparece
-  const aquecer = () => { for (let n = 1; n < fila.length; n++){ const q = LISTA[fila[(pos + n) % fila.length]]; if (!q.ruim){ new Image().src = img(q.imagens[0], W); break; } } };
+  const aquecer = () => { for (let n = 1; n < fila.length; n++){ const q = LISTA[fila[(pos + n) % fila.length]]; if (!q.ruim){ const id = q.imagens.slice(0, 6).find(i => FMT[i] === 'h' || (cel && FMT[i] === 'v')); if (id) new Image().src = img(id, W); else testar(q); break; } } };
   async function ir(dir){
     if (ocupado) return; ocupado = true; clearTimeout(timer);
     let src = null, p = null;
