@@ -200,6 +200,20 @@ canvas.vox:active{cursor:grabbing}
 .tsel button i{width:8px;height:8px;border-radius:2px}
 .tsel button[aria-pressed="true"]{border-color:var(--text-primary);color:var(--text-primary);font-weight:600;box-shadow:inset 0 0 0 1px var(--text-primary)}
 .trow{display:flex;align-items:center;gap:10px}
+.hmodo{display:flex;gap:4px;background:var(--surface-2);border-radius:10px;padding:3px;margin-bottom:10px}
+.hmodo button{flex:1;border:0;background:none;border-radius:8px;padding:6px 8px;font:inherit;font-size:12px;color:var(--text-secondary);cursor:pointer}
+.hmodo button[aria-selected="true"]{background:var(--surface-1);color:var(--text-primary);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.diario[hidden]{display:none} .dia-tit{font-size:12px;color:var(--text-secondary);margin:0 0 8px}
+.drow{display:grid;grid-template-columns:1fr auto 24px;gap:6px;align-items:center;padding:6px 0;border-top:1px solid var(--line)}
+.drow input{border:1px solid var(--line-2);border-radius:8px;padding:6px 9px;font:inherit;font-size:13px;background:var(--surface-1);color:var(--text-primary);min-width:0}
+.drow input:disabled{border-color:transparent;background:none;padding-left:0}
+.drow .dd{grid-column:1 / -1;font-size:12px;color:var(--text-secondary)}
+.dh{display:flex;align-items:center;gap:4px} .dh b{min-width:38px;text-align:center;font-size:13px}
+.dh button{width:26px;height:26px;border:1px solid var(--line-2);background:var(--surface-1);border-radius:7px;cursor:pointer;font-size:14px;line-height:1}
+.drow .x{border:0;background:none;color:var(--text-muted);font-size:13px;width:24px;height:24px;border-radius:6px;cursor:pointer}
+.dfoot{display:flex;align-items:center;gap:10px;margin-top:8px;font-size:12px;flex-wrap:wrap} .dfoot .num{color:var(--text-secondary)}
+.dfoot .dsave{margin-left:auto;font-size:12px;height:34px;padding:0 12px}
+.dstatus{font-size:11px;color:var(--text-secondary);margin:6px 0 0;min-height:14px}
 .clock{font-family:var(--mono);font-size:30px;font-weight:500;letter-spacing:-.02em;font-variant-numeric:tabular-nums;flex:1;line-height:1}
 .clock small{display:block;font-family:var(--sans);font-size:11.5px;color:var(--text-muted);letter-spacing:0;margin-top:5px;font-weight:400}
 .tgo{height:42px;min-width:42px;border-radius:12px;border:0;background:var(--text-primary);color:var(--bg);font-weight:600;padding:0 14px;display:flex;align-items:center;gap:6px}
@@ -537,7 +551,7 @@ const TODAY = (() => { const d = new Date(); d.setHours(12, 0, 0, 0); return d; 
 const DOW = ['dom','seg','ter','qua','qui','sex','sáb'];
 const MES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 const pessoa = id => PUB.pessoas.find(p => p.id === id);
-const proj = id => PUB.proj[id] || {nome:id, cod:'', slot:0};
+const proj = id => PUB.proj[id] || {nome: String(id).startsWith('livre:') ? String(id).slice(6) : id, cod:'', slot:0};
 const pc = id => `var(--s${proj(id).slot})`;
 const cssv = n => getComputedStyle(document.documentElement).getPropertyValue(n).trim();
 
@@ -699,7 +713,9 @@ function renderPerfil(app, id){
       <div class="legend"><span><i style="background:var(--accent);border-radius:50%"></i>obra / visita</span><span><i style="background:var(--text-primary);border-radius:50%"></i>reunião</span><span><i style="background:var(--s0);border-radius:50%"></i>interno</span><span><i style="box-shadow:inset 0 0 0 2px var(--accent);border-radius:50%"></i>tarefa do Notion</span></div>
     </section>
     <div class="sp4 col"><section class="card a-hrs"><h2><span class="cod">02</span>Horas da semana<span class="rt"><a class="link" href="https://www.notion.so/f930d0bde8164828b4ce1a5dc16cbc84" target="_blank" rel="noopener">Controle de Horas ↗</a></span></h2>
+      <div class="hmodo" role="tablist" aria-label="Como lançar horas"><button type="button" role="tab" data-hm="crono">Cronômetro</button><button type="button" role="tab" data-hm="dia">O que fiz hoje</button></div>
       <div class="timer" id="tmr"></div>
+      <div class="diario" id="dia" hidden></div>
       <div id="hsum"></div>
     </section>
     ${P.fin && SEC && SEC.estudio ? finPagar() : `<section class="card a-ent" style="flex:1"><h2><span class="cod">04</span>Próximas entregas</h2>
@@ -725,7 +741,7 @@ function renderPerfil(app, id){
   </div>${foot()}`;
   app.querySelector('.grid').classList.toggle('readonly', !podeEditar(id));
   mountAvatars(app, true);
-  timerUI(id, D);
+  timerUI(id, D); diarioUI(id, D); hmodoUI(id);
   if (podeEditar(id)) bioUI(id, P);
   drawTasks(id, D.tarefas);
   if ((P.socio || P.fin) && SEC && SEC.estudio) drawPulsoSpark();
@@ -1028,6 +1044,55 @@ function paintHoras(pid, D){
   el.innerHTML = `<div class="bigline"><b class="num">${hrsFmt(tot)}h</b><span>de ${H.meta}h · ${Math.round(tot / H.meta * 100)}%</span></div><div id="hrs"></div>
     <div class="legend">${H.proj.map(([p, h]) => `<span><i style="background:${pc(p)}"></i>${esc(shortP(p))} · ${hrsFmt(h)}h</span>`).join('')}</div>`;
   drawHoras($('#hrs'), H);
+}
+// ===== "O que fiz hoje": lança horas estimadas por projeto ou atividade (vai para o Controle de Horas) =====
+function hmodoUI(pid){
+  const m = store.get('hmodo.' + pid, 'crono');
+  document.querySelectorAll('[data-hm]').forEach(b => { b.setAttribute('aria-selected', b.dataset.hm === m); b.onclick = () => { store.set('hmodo.' + pid, b.dataset.hm); hmodoUI(pid); }; });
+  const t = $('#tmr'), d = $('#dia'); if (t) t.hidden = m !== 'crono'; if (d) d.hidden = m !== 'dia';
+}
+const hojeISO = () => new Date().toLocaleDateString('sv-SE');
+function diarioUI(pid, D){
+  const box = $('#dia'); if (!box) return;
+  const dia = hojeISO(), kDraft = 'diario.' + pid + '.' + dia, pode = podeEditar(pid) && AUTH.mode === 'firebase';
+  const nomeDe = p => proj(p).nome;
+  let rows = store.get(kDraft, null) || (D.diario || []).map(x => ({nome: nomeDe(x.p), h: x.h, desc: x.desc || ''}));
+  if (!rows.length && pode) rows = [{nome: '', h: 1, desc: ''}];
+  let status = (D.diario || []).length && !store.get(kDraft, null) ? 'salvo no Controle de Horas' : '';
+  const sugest = [...new Set([...D.projetos.map(x => nomeDe(x.p)), 'Interno / estúdio', ...(D.rotulos || []),
+    ...Object.keys(PUB.proj).filter(k => k !== 'interno').map(nomeDe).sort((a, b) => a.localeCompare(b, 'pt'))])];
+  const chaveDe = nome => { const n = nome.trim().toLowerCase(); if (!n) return null; const k = Object.keys(PUB.proj).find(k => nomeDe(k).toLowerCase() === n); return k || null; };
+  const salvarDraft = () => store.set(kDraft, rows);
+  const paint = () => {
+    const tot = rows.reduce((a, r) => a + (+r.h || 0), 0);
+    box.innerHTML = `<datalist id="dlDia">${sugest.map(s => `<option value="${esc(s)}">`).join('')}</datalist>
+      <p class="dia-tit">${new Date().toLocaleDateString('pt-BR', {weekday: 'long', day: 'numeric', month: 'short'})} · estime as horas de cada coisa que você fez</p>
+      ${rows.map((r, i) => `<div class="drow" data-i="${i}">
+        <input class="dp" list="dlDia" value="${esc(r.nome)}" placeholder="Projeto ou atividade (ex.: Marketing)" ${pode ? '' : 'disabled'} aria-label="Projeto ou atividade">
+        <div class="dh">${pode ? '<button type="button" data-dh="-1" aria-label="menos meia hora">−</button>' : ''}<b class="num">${hrsFmt(+r.h || 0)}h</b>${pode ? '<button type="button" data-dh="1" aria-label="mais meia hora">+</button>' : ''}</div>
+        ${pode ? `<button type="button" class="x" data-dx="${i}" aria-label="Remover">✕</button>` : ''}
+        <input class="dd" value="${esc(r.desc)}" placeholder="o que fez (opcional)" ${pode ? '' : 'disabled'} aria-label="Descrição"></div>`).join('') || '<p class="muted">Nada lançado hoje.</p>'}
+      <div class="dfoot">${pode ? '<button type="button" class="link" id="dAdd">+ adicionar</button>' : ''}<span class="num">total ${hrsFmt(tot)}h</span>
+        ${pode ? `<button type="button" class="btn dsave" id="dSave">Salvar no Controle de Horas</button>` : ''}</div>
+      <p class="dstatus" id="dSt">${esc(status)}</p>`;
+  };
+  paint();
+  if (!pode) return;
+  box.oninput = e => { const row = e.target.closest('.drow'); if (!row) return; const r = rows[+row.dataset.i];
+    if (e.target.classList.contains('dp')) r.nome = e.target.value; else if (e.target.classList.contains('dd')) r.desc = e.target.value;
+    salvarDraft(); $('#dSt').textContent = 'não salvo'; };
+  box.onclick = async e => {
+    const b = e.target.closest('button'); if (!b) return;
+    if (b.dataset.dh){ const r = rows[+b.closest('.drow').dataset.i]; r.h = Math.max(0, Math.min(12, (+r.h || 0) + 0.5 * +b.dataset.dh)); salvarDraft(); paint(); $('#dSt').textContent = 'não salvo'; }
+    else if (b.dataset.dx){ rows.splice(+b.dataset.dx, 1); salvarDraft(); paint(); $('#dSt').textContent = 'não salvo'; }
+    else if (b.id === 'dAdd'){ rows.push({nome: '', h: 1, desc: ''}); salvarDraft(); paint(); box.querySelectorAll('.dp')[rows.length - 1].focus(); }
+    else if (b.id === 'dSave'){
+      const itens = rows.filter(r => r.nome.trim() && +r.h > 0).map(r => { const k = chaveDe(r.nome); return k ? {p: k, h: +r.h, desc: r.desc} : {rotulo: r.nome.trim(), h: +r.h, desc: r.desc}; });
+      b.disabled = true; $('#dSt').textContent = 'salvando…';
+      try { await dadosPost({acao: 'diario', data: dia, itens}); store.set(kDraft, null); $('#dSt').textContent = 'salvo às ' + new Date().toTimeString().slice(0, 5) + ' · atualizando as horas…'; carregarDados(true); }
+      catch (err) { $('#dSt').textContent = 'não salvou: ' + err.message; b.disabled = false; }
+    }
+  };
 }
 let tpickFora = false;
 function timerUI(pid, D){
