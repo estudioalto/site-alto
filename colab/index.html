@@ -137,6 +137,10 @@ canvas.vox:active{cursor:grabbing}
 .tm .pj i{width:8px;height:8px;border-radius:2px}
 .st{font-size:11px;padding:2px 8px;border-radius:999px;background:var(--surface-2);color:var(--text-secondary);white-space:nowrap}
 .st.fazendo{background:var(--accent-soft);color:var(--accent-ink)}
+.st.aguardando{background:var(--surface-2);color:var(--warn)}
+.tt a{color:inherit;text-decoration:none} .tt a:hover{text-decoration:underline}
+.toast-alto{position:fixed;left:50%;bottom:24px;transform:translateX(-50%);background:var(--text-primary);color:var(--surface-1);padding:10px 16px;border-radius:10px;font-size:13px;z-index:99;max-width:90vw}
+.toast-alto[hidden]{display:none}
 .due{font-family:var(--mono);font-size:11px;text-align:right;white-space:nowrap}
 .due.late{color:var(--crit)} .due.soon{color:var(--warn)}
 .prio{font-size:10px;font-family:var(--mono);text-transform:uppercase;color:var(--crit)}
@@ -499,8 +503,8 @@ footer{margin-top:28px;font-size:11.5px;color:var(--text-muted);display:flex;jus
 
 <script>
 // Este arquivo é o molde. O build.py troca os dois valores abaixo pelos dados e gera o painel-alto.html.
-const PUB = {"proj": {"lets": {"nome": "Let's Poke · Shopping Jundiaí", "cod": "COM—01", "slot": 1}, "amy": {"nome": "Residência Amy & Patrick", "cod": "RES—02", "slot": 2}, "rosani": {"nome": "Apartamento Rosani", "cod": "INT—03", "slot": 3}, "rct": {"nome": "RCT · Escritório", "cod": "COM—04", "slot": 4}, "filtrada": {"nome": "filtrada. · Quiosque", "cod": "PRD—05", "slot": 5}, "interno": {"nome": "Interno / estúdio", "cod": "ALT—00", "slot": 0}}, "fases": ["Levantamento", "Estudo preliminar", "Anteprojeto", "Executivo", "Detalhamento", "Obra"], "pessoas": [{"id": "thomaz", "nome": "Thomaz", "papel": "Arquiteto · sócio", "socio": true}, {"id": "lira", "nome": "Lira", "papel": "Arquiteta · sócia", "socio": true}, {"id": "thay", "nome": "Thay", "papel": "Financeiro", "socio": false, "fin": true}], "avatares": {"thomaz": {"skin": "#d9a37c", "hair": "#2b211b", "style": "curto", "eyes": "#4a3020", "glasses": "#211b16", "beard": "barba", "head": "nada", "brinco": false, "item": "tubo", "shirt": "grafite", "pants": "offblack", "shoes": "laranja", "top": "blazer", "scene": "manchas"}, "lira": {"skin": "#e8b994", "hair": "#4a2c1d", "style": "longo", "eyes": "#5a3a22", "glasses": "", "beard": "nenhuma", "head": "nada", "brinco": true, "item": "planta", "shirt": "areia", "pants": "offblack", "shoes": "laranja", "top": "camiseta", "scene": "jardim"}, "thay": {"skin": "#c98e68", "hair": "#3a2418", "style": "longo", "eyes": "#3a2418", "glasses": "", "beard": "nenhuma", "head": "nada", "brinco": true, "item": "calculadora", "shirt": "pessego", "pants": "offblack", "shoes": "areia", "top": "blazer", "scene": "manchas"}}, "perfis": {}, "hoje": "2026-11-09", "auth": {"firebase": {"apiKey": "AIzaSyAihkkIZFXIoQDdFETh1rfhik42-vNhLa8", "authDomain": "alto-site.firebaseapp.com", "projectId": "alto-site", "appId": "1:520572537947:web:50a8e4bd03bbcfc203837e"}, "emails": {"thomaz": ["thomaz@estudioalto.com.br", "thomazsacchi@gmail.com"], "lira": ["aline@estudioalto.com.br", "alineserraf@gmail.com"], "thay": "thaygallene@gmail.com"}, "dominio": "estudioalto.com.br"}};
-const ENC = {"exemplo": {"perfis": {"thomaz": {"foco": "Fechar o executivo do Let's Poke e mandar a proposta da RCT", "hoje": [{"h": "09:30", "t": "Daily do estúdio", "tipo": "interno"}, {"h": "11:00", "t": "Revisão executivo Let's Poke", "tipo": "interno"}, {"h": "14:30", "t": "Visita obra Rosani · São Paulo", "tipo": "obra"}, {"h": "17:30", "t": "Call Amy & Patrick", "tipo": "reuniao"}], "horas": {"meta": 40, "proj": [["lets", 11], ["rct", 7], ["rosani", 6], ["amy", 5], ["interno", 5]]}, "tarefas": [{"id": "t1", "t": "Revisar pranchas do executivo", "p": "lets", "prazo": "2026-11-10", "status": "fazendo", "prio": "alta"}, {"id": "t2", "t": "Enviar proposta de honorários", "p": "rct", "prazo": "2026-11-11", "status": "a fazer", "prio": "alta"}, {"id": "t3", "t": "Aprovar render da sala", "p": "amy", "prazo": "2026-11-12", "status": "revisão", "prio": "média"}, {"id": "t4", "t": "Conferir medição da marcenaria", "p": "rosani", "prazo": "2026-11-13", "status": "a fazer", "prio": "média"}, {"id": "t5", "t": "Briefing do quiosque com cliente", "p": "filtrada", "prazo": "2026-11-18", "status": "a fazer", "prio": "média"}, {"id": "t6", "t": "Atualizar template ALTOMATICO", "p": "interno", "prazo": "2026-11-14", "status": "a fazer", "prio": "baixa"}, {"id": "t7", "t": "Levantamento fotográfico RCT", "p": "rct", "prazo": "2026-11-06", "status": "feito", "prio": "média"}], "agenda": {"seg": [["09:30", "Daily", "interno"], ["14:30", "Obra Rosani", "obra"], ["17:30", "Amy & Patrick", "reuniao"]], "ter": [["10:00", "Aprovação no shopping", "reuniao"], ["15:00", "Fornecedor marcenaria", "reuniao"]], "qua": [["09:00", "Obra Rosani (SP)", "obra"], ["16:00", "Apresentação RCT", "reuniao"]], "qui": [["11:00", "Anteprojeto Amy & Patrick", "reuniao"]], "sex": [["10:00", "Fechamento semanal", "interno"], ["14:00", "Briefing filtrada.", "reuniao"]]}, "projetos": [{"p": "lets", "fase": 4, "prox": "Entrega executivo · 18/11"}, {"p": "rct", "fase": 1, "prox": "Proposta · 11/11"}, {"p": "amy", "fase": 2, "prox": "Anteprojeto · 12/11"}, {"p": "rosani", "fase": 5, "prox": "Obra · semana 6/10"}], "entregas": [{"t": "Proposta RCT", "p": "rct", "data": "2026-11-11"}, {"t": "Anteprojeto Amy & Patrick", "p": "amy", "data": "2026-11-12"}, {"t": "Executivo Let's Poke", "p": "lets", "data": "2026-11-18"}, {"t": "Briefing filtrada.", "p": "filtrada", "data": "2026-11-20"}]}, "lira": {"foco": "Paisagismo da Amy & Patrick e cronograma da obra Rosani", "hoje": [{"h": "09:30", "t": "Daily do estúdio", "tipo": "interno"}, {"h": "10:30", "t": "Estudo de paisagismo · Amy & Patrick", "tipo": "interno"}, {"h": "13:30", "t": "Almoço com Ana · novo restaurante", "tipo": "reuniao"}, {"h": "16:00", "t": "Revisar cronograma Rosani", "tipo": "interno"}], "horas": {"meta": 40, "proj": [["amy", 13], ["rosani", 9], ["lets", 5], ["filtrada", 4], ["interno", 6]]}, "tarefas": [{"id": "l1", "t": "Plano de massas do jardim", "p": "amy", "prazo": "2026-11-11", "status": "fazendo", "prio": "alta"}, {"id": "l2", "t": "Cronograma físico-financeiro da obra", "p": "rosani", "prazo": "2026-11-10", "status": "a fazer", "prio": "alta"}, {"id": "l3", "t": "Revisar detalhamento", "p": "lets", "prazo": "2026-11-13", "status": "revisão", "prio": "média"}, {"id": "l4", "t": "Paleta de materiais do quiosque", "p": "filtrada", "prazo": "2026-11-17", "status": "a fazer", "prio": "média"}, {"id": "l5", "t": "Fechar contrato do restaurante (via Ana)", "p": "interno", "prazo": "2026-11-19", "status": "a fazer", "prio": "média"}, {"id": "l6", "t": "Especificação de espécies", "p": "amy", "prazo": "2026-11-06", "status": "feito", "prio": "média"}], "agenda": {"seg": [["09:30", "Daily", "interno"], ["13:30", "Almoço com Ana", "reuniao"]], "ter": [["09:00", "Viveiro · espécies", "obra"]], "qua": [["16:00", "Apresentação RCT", "reuniao"]], "qui": [["11:00", "Anteprojeto Amy & Patrick", "reuniao"], ["15:00", "Obra Rosani", "obra"]], "sex": [["10:00", "Fechamento semanal", "interno"]]}, "projetos": [{"p": "amy", "fase": 2, "prox": "Paisagismo · 11/11"}, {"p": "rosani", "fase": 5, "prox": "Obra · semana 6/10"}, {"p": "lets", "fase": 4, "prox": "Revisão · 13/11"}, {"p": "filtrada", "fase": 1, "prox": "Materiais · 17/11"}], "entregas": [{"t": "Cronograma Rosani", "p": "rosani", "data": "2026-11-10"}, {"t": "Plano de massas", "p": "amy", "data": "2026-11-11"}, {"t": "Paleta filtrada.", "p": "filtrada", "data": "2026-11-17"}]}, "thay": {"foco": "Fechamento de novembro: cobranças, notas e conciliação", "hoje": [{"h": "09:30", "t": "Daily do estúdio", "tipo": "interno"}, {"h": "10:00", "t": "Conciliar extrato bancário", "tipo": "interno"}, {"h": "11:30", "t": "Emitir NF · Let's Poke 4/6", "tipo": "interno"}, {"h": "15:00", "t": "Reunião com contador", "tipo": "reuniao"}], "horas": {"meta": 30, "proj": [["interno", 18], ["lets", 3], ["amy", 2], ["rosani", 2]]}, "tarefas": [{"id": "f1", "t": "Emitir nota fiscal da parcela 4/6", "p": "lets", "prazo": "2026-11-12", "status": "fazendo", "prio": "alta"}, {"id": "f2", "t": "Cobrar parcela 2/5 (lembrete por e-mail)", "p": "amy", "prazo": "2026-11-18", "status": "a fazer", "prio": "alta"}, {"id": "f3", "t": "Conciliar extrato de outubro", "p": "interno", "prazo": "2026-11-11", "status": "fazendo", "prio": "alta"}, {"id": "f4", "t": "Pagar DAS do Simples", "p": "interno", "prazo": "2026-11-20", "status": "a fazer", "prio": "média"}, {"id": "f5", "t": "Lançar reembolsos de obra (Rosani)", "p": "rosani", "prazo": "2026-11-14", "status": "a fazer", "prio": "média"}, {"id": "f6", "t": "Atualizar planilha de faturas", "p": "interno", "prazo": "2026-11-13", "status": "a fazer", "prio": "baixa"}, {"id": "f7", "t": "Fechamento de outubro para os sócios", "p": "interno", "prazo": "2026-11-07", "status": "feito", "prio": "média"}], "agenda": {"seg": [["09:30", "Daily", "interno"], ["15:00", "Contador", "reuniao"]], "ter": [["10:00", "Conciliação bancária", "interno"]], "qua": [["14:00", "Pagamentos da semana", "interno"]], "qui": [["10:00", "Cobranças e NFs", "interno"]], "sex": [["10:00", "Fechamento semanal", "interno"], ["16:00", "Resumo para os sócios", "reuniao"]]}, "projetos": [], "entregas": []}}, "estudio": {"ano": 2026, "metaAno": 820000, "realizadoAte": 9, "meses": ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"], "entradas": [48000, 52000, 61000, 58000, 66000, 71000, 59000, 74000, 69000, 78000, 72000, 81000], "saidas": [44000, 45500, 47000, 48500, 49000, 51000, 50500, 52000, 52500, 53000, 54000, 58000], "caixaInicial": 38000, "receber": [{"c": "Let's Poke", "p": "lets", "parc": "4/6", "data": "2026-11-15", "v": 9800}, {"c": "Amy & Patrick", "p": "amy", "parc": "2/5", "data": "2026-11-20", "v": 14200}, {"c": "Rosani", "p": "rosani", "parc": "obra 3/4", "data": "2026-11-28", "v": 7600}, {"c": "Let's Poke", "p": "lets", "parc": "5/6", "data": "2026-12-15", "v": 9800}, {"c": "RCT (se fechar)", "p": "rct", "parc": "entrada", "data": "2026-12-01", "v": 12500}], "pagar": [{"c": "Aluguel + condomínio", "cat": "fixo", "data": "2026-11-10", "v": 5200}, {"c": "Autodesk (AutoCAD)", "cat": "software", "data": "2026-11-15", "v": 1900}, {"c": "DAS · Simples Nacional", "cat": "imposto", "data": "2026-11-20", "v": 7200}, {"c": "Contador", "cat": "serviço", "data": "2026-11-25", "v": 1400}, {"c": "ANA Studio", "cat": "software", "data": "2026-11-28", "v": 590}], "notas": [{"c": "Let's Poke · parcela 4/6", "p": "lets", "data": "2026-11-12", "v": 9800}, {"c": "Amy & Patrick · parcela 2/5", "p": "amy", "data": "2026-11-18", "v": 14200}], "funil": [{"e": "Contatos", "n": 22, "v": 640000}, {"e": "Propostas enviadas", "n": 11, "v": 410000}, {"e": "Em negociação", "n": 5, "v": 185000}, {"e": "Fechados", "n": 4, "v": 142000}], "metaHora": 190, "rent": [{"p": "lets", "valor": 58000, "hOrc": 280, "hReal": 262}, {"p": "amy", "valor": 74000, "hOrc": 360, "hReal": 410}, {"p": "rosani", "valor": 41000, "hOrc": 220, "hReal": 268}, {"p": "rct", "valor": 12500, "hOrc": 60, "hReal": 38}, {"p": "filtrada", "valor": 22000, "hOrc": 120, "hReal": 41}], "custos": [["Equipe e pró-labore", 31000], ["Impostos (Simples)", 7200], ["Aluguel + condomínio", 5200], ["Softwares (Autodesk, SketchUp, ANA)", 3900], ["Contador e taxas", 1400], ["Marketing e site", 1300], ["Outros", 2000]], "carga": {"semanas": ["9–13 nov", "16–20 nov", "23–27 nov", "30 nov–4 dez"], "pessoas": [["Thomaz", [34, 41, 38, 30]], ["Lira", [37, 39, 33, 28]], ["Thay", [30, 30, 30, 30]]], "cap": [40, 40, 40, 30]}, "cenarios": {"conservador": {"cresc": 0.06, "fixo": 0.08, "txt": "Mesmo volume de clientes, reajuste de honorários."}, "base": {"cresc": 0.15, "fixo": 0.12, "txt": "+1 projeto comercial por trimestre (franquias)."}, "otimista": {"cresc": 0.28, "fixo": 0.22, "txt": "Contrato recorrente de franquia + 1 arquiteta."}}, "metas2027": [["Faturamento", "R$ 1 mi"], ["Margem líquida", "20%"], ["Fôlego de caixa", "6 meses"], ["Valor/hora efetivo", "R$ 220"]]}}};
+const PUB = {"proj": {"interno": {"nome": "Interno / estúdio", "cod": "ALT", "slot": 0}}, "fases": ["Levantamento", "Estudo preliminar", "Anteprojeto", "Executivo", "Detalhamento", "Obra"], "pessoas": [{"id": "thomaz", "nome": "Thomaz", "papel": "Arquiteto · sócio", "socio": true}, {"id": "lira", "nome": "Lira", "papel": "Arquiteta · sócia", "socio": true}, {"id": "thay", "nome": "Thay", "papel": "Financeiro", "socio": false, "fin": true}, {"id": "erica", "nome": "Érica", "papel": "Equipe", "socio": false}, {"id": "vagner", "nome": "Vagner", "papel": "Equipe", "socio": false}, {"id": "duda", "nome": "Duda", "papel": "Equipe", "socio": false}], "avatares": {"thomaz": {"skin": "#d9a37c", "hair": "#2b211b", "style": "curto", "eyes": "#4a3020", "glasses": "#211b16", "beard": "barba", "head": "nada", "brinco": false, "item": "tubo", "shirt": "grafite", "pants": "offblack", "shoes": "laranja", "top": "blazer", "scene": "manchas"}, "lira": {"skin": "#e8b994", "hair": "#4a2c1d", "style": "longo", "eyes": "#5a3a22", "glasses": "", "beard": "nenhuma", "head": "nada", "brinco": true, "item": "planta", "shirt": "areia", "pants": "offblack", "shoes": "laranja", "top": "camiseta", "scene": "jardim"}, "thay": {"skin": "#c98e68", "hair": "#3a2418", "style": "longo", "eyes": "#3a2418", "glasses": "", "beard": "nenhuma", "head": "nada", "brinco": true, "item": "calculadora", "shirt": "pessego", "pants": "offblack", "shoes": "areia", "top": "blazer", "scene": "manchas"}, "erica": {"skin": "#d9a37c", "hair": "#3a2418", "style": "longo", "eyes": "#4a3020", "glasses": "", "beard": "nenhuma", "head": "nada", "brinco": false, "item": "caderno", "shirt": "laranja", "pants": "offblack", "shoes": "areia", "top": "camiseta"}, "vagner": {"skin": "#d9a37c", "hair": "#2b211b", "style": "curto", "eyes": "#4a3020", "glasses": "", "beard": "nenhuma", "head": "nada", "brinco": false, "item": "tubo", "shirt": "taupe", "pants": "grafite", "shoes": "laranja", "top": "camiseta"}, "duda": {"skin": "#d9a37c", "hair": "#4a2c1d", "style": "longo", "eyes": "#4a3020", "glasses": "", "beard": "nenhuma", "head": "nada", "brinco": false, "item": "laptop", "shirt": "areia", "pants": "offblack", "shoes": "laranja", "top": "camiseta"}}, "perfis": {}, "auth": {"firebase": {"apiKey": "AIzaSyAihkkIZFXIoQDdFETh1rfhik42-vNhLa8", "authDomain": "alto-site.firebaseapp.com", "projectId": "alto-site", "appId": "1:520572537947:web:50a8e4bd03bbcfc203837e"}, "emails": {"thomaz": ["thomaz@estudioalto.com.br", "thomazsacchi@gmail.com"], "lira": ["aline@estudioalto.com.br", "alineserraf@gmail.com"], "thay": "thaygallene@gmail.com", "erica": "ericaf.alto@gmail.com", "vagner": "vagner.alto@gmail.com", "duda": "dudaramos.alto@gmail.com"}, "dominio": "estudioalto.com.br", "dados": ""}};
+const ENC = {};
 if (!PUB){ document.addEventListener('DOMContentLoaded', () => { document.body.innerHTML = '<div style="font:15px/1.5 system-ui;max-width:480px;margin:15vh auto;padding:24px;border-radius:14px;background:#fbf9f5;border:1px solid #e3dcd0;color:#211b16"><b style="color:#ff6600;font-size:22px">alto</b><p style="margin-top:10px">Este é o <b>molde</b> do painel, sem dados. Para ver o painel, abra o <b>painel-alto.html</b>.</p><p style="margin-top:8px;color:#857b70;font-size:13px">Para gerar de novo depois de mudar dados ou o visual: <code>python3 build.py</code></p></div>'; }); }
 </script>
 <script>
@@ -519,7 +523,7 @@ let SEC = null;  // dados dos sócios: liberados pelo login (ou pela senha, no m
 let HIDE = false;          // ocultar valores
 let VIEW = store.get('view', 'inicio');
 let PENDING = null;        // aba que pediu senha
-const TODAY = new Date(PUB.hoje + 'T12:00:00');
+const TODAY = (() => { const d = new Date(); d.setHours(12, 0, 0, 0); return d; })();
 const DOW = ['dom','seg','ter','qua','qui','sex','sáb'];
 const MES = ['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];
 const pessoa = id => PUB.pessoas.find(p => p.id === id);
@@ -599,8 +603,9 @@ function render(){
   renderTabs(); renderMe();
   const app = $('#app');
   if (VIEW === 'inicio' || (!pessoa(VIEW) && VIEW !== 'estudio')) return renderInicio(app);
-  if (needsKey(VIEW) && !SEC) return renderLock(app);
-  if (VIEW === 'estudio') return renderEstudio(app);
+  if (needsKey(VIEW) && !SEC) return AUTH.mode === 'firebase' ? renderCarregando(app) : renderLock(app);
+  if (AUTH.mode === 'firebase' && !DADOS.ok) return renderCarregando(app);
+  if (VIEW === 'estudio'){ if (!SEC.estudio){ DADOS.erro = DADOS.erro || 'A planilha ESTÚDIO ALTO | GESTÃO não respondeu.'; return renderCarregando(app); } return renderEstudio(app); }
   return renderPerfil(app, VIEW);
 }
 
@@ -618,11 +623,19 @@ function renderInicio(app){
   </div>
   ${foot()}`;
   mountAvatars(app, false);
-  app.querySelectorAll('canvas[data-house]').forEach(c => VOX.add(c, houseModel(SEC ? metaPct(SEC.estudio) : 1), {auto:true, drag:false, scale:.92, grain:.28, foot:[8, 1, 6], bg:(c2, W, H) => paintBlobs(c2, W, H, 7)}));
+  app.querySelectorAll('canvas[data-house]').forEach(c => VOX.add(c, houseModel(SEC && SEC.estudio ? metaPct(SEC.estudio) : 1), {auto:true, drag:false, scale:.92, grain:.28, foot:[8, 1, 6], bg:(c2, W, H) => paintBlobs(c2, W, H, 7)}));
 }
 const foot = () => `<footer><span>alto · painel interno</span><span>Cronômetro salvo neste navegador · Atalhos: <b>?</b> tutorial · <b>T</b> tudo numa tela · <b>H</b> oculta valores${OPEN ? '' : ' · <b>L</b> bloqueia'}</span></footer>`;
 
 /* ============ senha ============ */
+function renderCarregando(app){
+  const e = DADOS.erro;
+  app.innerHTML = `<div class="lock"><div class="card"><div class="ico">${e ? '⚠️' : '⏳'}</div>
+    <h3>${e ? 'Não consegui carregar os dados' : 'Carregando…'}</h3>
+    <p>${e ? esc(e) : 'Buscando tarefas no Notion, agenda do Google e contas da planilha.'}</p>
+    ${e ? '<div class="lf"><button class="btn" id="dRetry" type="button">Tentar de novo</button></div>' : ''}</div></div>${foot()}`;
+  const b = $('#dRetry'); if (b) b.onclick = () => carregarDados(true);
+}
 function renderLock(app){
   const alvo = VIEW === 'estudio' ? 'o painel do Estúdio' : 'o painel de ' + pessoa(VIEW).nome;
   app.innerHTML = `<div class="lock"><div class="card">
@@ -665,11 +678,11 @@ function renderPerfil(app, id){
       <div class="moods" role="group" aria-label="Mood do dia"><span class="mk">mood do dia</span>${Object.entries(MOODS).map(([k, m]) => `<button data-mood="${k}" data-pid="${id}" aria-pressed="${moodGet(id) === k}" title="${m.l}"><b>${m.i}</b><span>${m.l}</span></button>`).join('')}</div>
       <div class="stats3">
         <div><b class="num">${open.length}</b><span>tarefas</span></div>
-        ${P.fin && SEC ? finStats() : `<div><b class="num">${D.projetos.length}</b><span>projetos</span></div>
+        ${P.fin && SEC && SEC.estudio ? finStats() : `<div><b class="num">${D.projetos.length}</b><span>projetos</span></div>
         <div><b class="num">${D.entregas.filter(e => daysTo(e.data) <= 7).length}</b><span>entregas 7d</span></div>`}
       </div>
     </section>
-    <section class="card sp5 a-hoje"><h2><span class="cod">01</span>Hoje<span class="rt">${D.hoje.length} compromissos</span></h2>
+    <section class="card sp5 a-hoje"><h2><span class="cod">01</span>Hoje<span class="rt">${D.agendaOk === false ? 'agenda do Google não compartilhada' : D.hoje.length + ' compromissos'}</span></h2>
       <ul class="today fl">${D.hoje.map((h, i) => { const [hh, mm] = h.h.split(':').map(Number), m = hh*60+mm, nxt = D.hoje[i+1] ? toMin(D.hoje[i+1].h) : 1e9;
         return `<li class="${m <= nowH && nowH < nxt ? 'now' : ''}"><span class="h">${h.h}</span><span class="dot ${h.tipo}"></span><span>${esc(h.t)}</span><span class="pill">${{obra:'obra',reuniao:'reunião',interno:'interno'}[h.tipo]}</span></li>` }).join('')}</ul>
       <div class="legend"><span><i style="background:var(--accent);border-radius:50%"></i>obra / visita</span><span><i style="background:var(--text-primary);border-radius:50%"></i>reunião</span><span><i style="background:var(--s0);border-radius:50%"></i>interno</span></div>
@@ -678,16 +691,16 @@ function renderPerfil(app, id){
       <div class="timer" id="tmr"></div>
       <div id="hsum"></div>
     </section>
-    ${P.fin && SEC ? finPagar() : `<section class="card a-ent" style="flex:1"><h2><span class="cod">04</span>Próximas entregas</h2>
+    ${P.fin && SEC && SEC.estudio ? finPagar() : `<section class="card a-ent" style="flex:1"><h2><span class="cod">04</span>Próximas entregas</h2>
       <ul class="deliv fl">${D.entregas.slice().sort((a, b) => a.data < b.data ? -1 : 1).slice(0, 3).map(e => { const dd = dParse(e.data), n = daysTo(e.data);
         return `<li><div class="cal"><span>${MES[dd.getMonth()]}</span><b>${dd.getDate()}</b></div><div><div style="font-weight:500">${esc(e.t)}</div><div class="tm"><span class="pj"><i style="background:${pc(e.p)}"></i>${esc(proj(e.p).nome)}</span></div></div><span class="dd" style="${n <= 2 ? 'color:var(--warn)' : ''}">${n === 0 ? 'hoje' : n === 1 ? 'amanhã' : n < 0 ? 'atrasada' : 'em ' + n + ' dias'}</span></li>` }).join('')}</ul>
     </section>`}</div>
-    ${P.socio ? pulso() : ''}${P.fin && SEC ? finCaixa() : ''}
-    <section class="card sp7 a-tar"><h2><span class="cod">03</span>Minhas tarefas<span class="rt">do Notion · <a class="link" href="#" onclick="return false">abrir ↗</a></span></h2>
+    ${P.socio && SEC && SEC.estudio ? pulso() : ''}${P.fin && SEC && SEC.estudio ? finCaixa() : ''}
+    <section class="card sp7 a-tar"><h2><span class="cod">03</span>Minhas tarefas<span class="rt">do Notion · <a class="link" href="${esc(DADOS.notion || 'https://www.notion.so')}" target="_blank" rel="noopener">abrir ↗</a></span></h2>
       <div class="filters" id="tf"></div>
       <ul class="tasks fl" id="tl"></ul>
     </section>
-    ${P.fin && SEC ? finReceber() : `<section class="card sp5 a-prj"><h2><span class="cod">05</span>Meus projetos<span class="rt">fase atual</span></h2><div class="fl">
+    ${P.fin && SEC && SEC.estudio ? finReceber() : `<section class="card sp5 a-prj"><h2><span class="cod">05</span>Meus projetos<span class="rt">fase atual</span></h2><div class="fl">
       <div class="phcap">${['Levant.','Estudo','Antep.','Exec.','Detalh.','Obra'].map(f => `<span>${f}</span>`).join('')}</div>
       ${D.projetos.map(x => `<div class="prj"><div><div class="pn"><i style="background:${pc(x.p)}"></i>${esc(proj(x.p).nome)}</div><div class="pc">${proj(x.p).cod}</div></div>
         <div><div class="phases">${PUB.fases.map((f, i) => `<div class="ph ${i < x.fase ? 'done' : i === x.fase ? 'cur' : ''}" title="${f}"></div>`).join('')}</div>
@@ -704,7 +717,7 @@ function renderPerfil(app, id){
   timerUI(id, D);
   if (podeEditar(id)) bioUI(id, P);
   drawTasks(id, D.tarefas);
-  if (P.socio || (P.fin && SEC)) drawPulsoSpark();
+  if ((P.socio || P.fin) && SEC && SEC.estudio) drawPulsoSpark();
 }
 const toMin = h => { const [a, b] = h.split(':').map(Number); return a*60+b };
 const shortP = p => proj(p).nome.split(' · ')[0].replace('Residência ', '').replace('Apartamento ', '');
@@ -730,16 +743,17 @@ function drawTasks(pid, T){
   const paint = () => {
     $('#tf').innerHTML = F.map(([k, l]) => `<button class="chipb" data-f="${k}" aria-pressed="${f===k}">${l}</button>`).join('');
     const rows = T.map(t => ({...t, ok: isDone(t.id, t.status === 'feito')}))
-      .filter(t => f === 'todas' ? true : f === 'abertas' ? !t.ok : f === 'hoje' ? !t.ok && daysTo(t.prazo) <= 1 : !t.ok && t.prio === 'alta')
-      .sort((a, b) => a.ok - b.ok || (a.prazo < b.prazo ? -1 : 1));
-    $('#tl').innerHTML = rows.map(t => { const n = daysTo(t.prazo);
+      .filter(t => f === 'todas' ? true : f === 'abertas' ? !t.ok : f === 'hoje' ? !t.ok && !!t.prazo && daysTo(t.prazo) <= 1 : !t.ok && t.prio === 'alta')
+      .sort((a, b) => a.ok - b.ok || ((a.prazo || '9') < (b.prazo || '9') ? -1 : 1));
+    $('#tl').innerHTML = rows.map(t => { const n = t.prazo ? daysTo(t.prazo) : null;
       return `<li class="${t.ok ? 'done' : ''}"><input type="checkbox" data-id="${t.id}" ${t.ok ? 'checked' : ''} aria-label="Concluir: ${esc(t.t)}">
-      <div><div class="tt">${esc(t.t)}</div><div class="tm"><span class="pj"><i style="background:${pc(t.p)}"></i>${esc(proj(t.p).nome)}</span><span class="st ${t.ok ? '' : t.status}">${t.ok ? 'feito' : t.status}</span>${t.prio === 'alta' && !t.ok ? '<span class="prio">▲ alta</span>' : ''}</div></div>
-      <span class="due ${t.ok ? '' : n < 0 ? 'late' : n <= 1 ? 'soon' : ''}">${t.ok ? '✓' : n < 0 ? 'atrasada' : n === 0 ? 'hoje' : n === 1 ? 'amanhã' : dLabel(t.prazo)}</span></li>` }).join('')
+      <div><div class="tt">${t.url ? `<a href="${esc(t.url)}" target="_blank" rel="noopener">${esc(t.t)}</a>` : esc(t.t)}</div><div class="tm"><span class="pj"><i style="background:${pc(t.p)}"></i>${esc(proj(t.p).nome)}</span><span class="st ${t.ok ? '' : t.status}">${t.ok ? 'feito' : t.status}</span>${t.prio === 'alta' && !t.ok ? '<span class="prio">▲ alta</span>' : ''}</div></div>
+      <span class="due ${t.ok || n === null ? '' : n < 0 ? 'late' : n <= 1 ? 'soon' : ''}">${t.ok ? '✓' : n === null ? '' : n < 0 ? 'atrasada' : n === 0 ? 'hoje' : n === 1 ? 'amanhã' : dLabel(t.prazo)}</span></li>` }).join('')
       || '<li><span></span><span class="muted">Nada aqui. 🎉</span></li>';
   };
   $('#tf').onclick = e => { const b = e.target.closest('[data-f]'); if (!b) return; f = b.dataset.f; store.set('tf.' + pid, f); paint(); };
-  $('#tl').onchange = e => { const c = e.target; if (!c.dataset.id) return; if (!podeEditar(pid)){ c.checked = !c.checked; return; } const m = store.get('done', {}); m[c.dataset.id] = c.checked; store.set('done', m); paint(); };
+  $('#tl').onchange = e => { const c = e.target; if (!c.dataset.id) return; if (!podeEditar(pid)){ c.checked = !c.checked; return; } const m = store.get('done', {}); m[c.dataset.id] = c.checked; store.set('done', m); paint();
+    if (/^[0-9a-f-]{36}$/.test(c.dataset.id)) paraNotion(pid, {acao: 'tarefa', id: c.dataset.id, feito: c.checked}); };
   paint();
 }
 
@@ -846,7 +860,7 @@ function renderEstudio(app){
     </section>
 
     <section class="card sp4 a-fn"><h2><span class="cod">E—03</span>Funil comercial<span class="rt">${E.ano}</span></h2><div id="fn" class="fill"></div>
-      <div class="sub sec" style="font-size:12px;margin-top:8px">Conversão proposta → fechado: <b>${pct(E.funil[3].n / E.funil[1].n)}</b> · ticket médio fechado ${brlK(E.funil[3].v / E.funil[3].n)}</div></section>
+      <div class="sub sec" style="font-size:12px;margin-top:8px">Ticket médio dos contratos fechados: <b>${E.funil[3].n ? brlK(E.funil[3].v / E.funil[3].n) : '—'}</b></div></section>
     <section class="card sp4 a-rt"><h2><span class="cod">E—04</span>Valor/hora por projeto<span class="rt">meta ${HIDE ? 'R$ •••' : 'R$ ' + E.metaHora}/h</span></h2><div id="rt" class="fill"></div>
       <div class="sub sec no-one" style="font-size:12px;margin-top:8px">Honorário ÷ horas lançadas. Abaixo da linha, o projeto está consumindo mais horas do que foi precificado.</div></section>
     <section class="card sp4 a-cx"><h2><span class="cod">E—05</span>Custo fixo mensal<span class="rt">${brlK(F.custoMes)}</span></h2><div id="cx" class="fill"></div></section>
@@ -933,7 +947,7 @@ function drawFunil(E){
 function drawRent(E){
   const rows = E.rent.map(r => { const vh = r.valor / r.hReal, ok = vh >= E.metaHora;
     return {l: shortP(r.p), v: vh, c: pc(r.p), lab: HIDE ? '•••' : (ok ? '' : '▼ ') + 'R$ ' + Math.round(vh),
-      tip: `<b>${esc(proj(r.p).nome)}</b><br>Honorário ${brlTxt(r.valor)}<br>${r.hReal}h lançadas de ${r.hOrc}h orçadas<br>${HIDE ? '' : 'R$ ' + Math.round(vh) + '/h ' + (ok ? '✓ acima da meta' : '▼ abaixo da meta')}`}; });
+      tip: `<b>${esc(proj(r.p).nome)}</b><br>Honorário ${brlTxt(r.valor)}<br>${r.hReal}h lançadas${r.hOrc ? ` de ${r.hOrc}h orçadas` : ''}<br>${HIDE ? '' : 'R$ ' + Math.round(vh) + '/h ' + (ok ? '✓ acima da meta' : '▼ abaixo da meta')}`}; });
   hBars($('#rt'), rows, {lw: 96, ref: {v: E.metaHora, l: 'meta'}});
 }
 function drawCustos(E){
@@ -982,7 +996,12 @@ const hm = ms => { const m = Math.round(ms / 60000); return m < 60 ? m + ' min' 
 const hrsFmt = h => (Math.round(h * 10) / 10).toLocaleString('pt-BR');
 const hhmm = t => { const d = new Date(t); return String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0'); };
 function weekStart(){ const d = new Date(); d.setHours(0, 0, 0, 0); d.setDate(d.getDate() - ((d.getDay() + 6) % 7)); return +d; }
-function tStop(pid){ const t = tGet(pid); if (!t.run) return; const fim = Date.now(); if (fim - t.run.t0 >= 30000) t.log.push({p: t.run.p, ini: t.run.t0, fim}); t.run = null; tSet(pid, t); }
+function tStop(pid){ const t = tGet(pid); if (!t.run) return; const fim = Date.now(), reg = {p: t.run.p, ini: t.run.t0, fim};
+  if (fim - t.run.t0 >= 30000){ t.log.push(reg); paraNotion(pid, Object.assign({acao: 'horas'}, reg)); } t.run = null; tSet(pid, t); }
+function paraNotion(pid, body){ if (AUTH.mode !== 'firebase' || pid !== AUTH.me) return;
+  dadosPost(body).catch(e => aviso('Não consegui gravar no Notion: ' + e.message)); }
+function aviso(msg){ let el = $('#toastAlto'); if (!el){ el = document.createElement('div'); el.id = 'toastAlto'; el.className = 'toast-alto'; document.body.appendChild(el); }
+  el.textContent = msg; el.hidden = false; clearTimeout(el._t); el._t = setTimeout(() => el.hidden = true, 6000); }
 function tStart(pid, p){ tStop(pid); const t = tGet(pid); t.run = {p, t0: Date.now()}; t.sel = p; tSet(pid, t); }
 function tWeekHours(pid){ // horas do cronômetro nesta semana, por projeto (inclui o que está rodando)
   const t = tGet(pid), ws = weekStart(), out = {};
@@ -1020,7 +1039,7 @@ function timerUI(pid, D){
     const t = tGet(pid);
     if (b.dataset.tp){ if (t.run && t.run.p !== b.dataset.tp) tStart(pid, b.dataset.tp); else { t.sel = b.dataset.tp; tSet(pid, t); } }
     else if (b.id === 'tgo'){ if (t.run) tStop(pid); else tStart(pid, t.sel && opts.includes(t.sel) ? t.sel : opts[0]); }
-    else if (b.dataset.del){ t.log = t.log.filter(l => String(l.ini) !== b.dataset.del); tSet(pid, t); }
+    else if (b.dataset.del){ t.log = t.log.filter(l => String(l.ini) !== b.dataset.del); tSet(pid, t); paraNotion(pid, {acao: 'horasDel', ini: +b.dataset.del}); }
     paint();
   };
   paint();
@@ -1178,7 +1197,7 @@ async function entrar(){
   try{ await AUTH.auth.signInWithPopup(prov); }
   catch(e){ if (/popup/i.test(e.code || '')) return AUTH.auth.signInWithRedirect(prov); if (er) er.textContent = erroMsg(e); }
 }
-function sair(){ if (AUTH.mode === 'demo'){ store.set('demo.email', null); AUTH.me = null; SEC = null; return render(); } AUTH.auth.signOut(); }
+function sair(){ DADOS.ok = false; DADOS.erro = null; clearTimeout(dadosT); if (AUTH.mode === 'demo'){ store.set('demo.email', null); AUTH.me = null; SEC = null; return render(); } AUTH.auth.signOut(); }
 async function entrou(email, foto){
   await carregarConvites(email);
   const pid = pidDoEmail(email);
@@ -1188,15 +1207,39 @@ async function entrou(email, foto){
   if (AUTH.mode === 'demo'){ store.set('demo.email', email); if (ehSocio() || ehFin()) SEC = ENC.plain || ENC.exemplo; }
   else {
     // perfis da equipe (miniatura, mood, cronômetro, bio) ficam sincronizados entre computadores
-    AUTH.db.collection('pessoas').onSnapshot(sn => { let mudou = false;
-      sn.forEach(doc => { const d = doc.data() || {}; ['av', 'mood', 'timer', 'bio'].forEach(k => { if (!(k in d)) return; const key = k + '.' + doc.id, j = JSON.stringify(d[k]); if (MEM[key] !== j){ store.set(key, d[k], true); mudou = true; } }); });
-      if (mudou && $('#avm').hidden && !document.activeElement.closest('textarea,input')) render(); }, () => {});
-    if (ehSocio() || ehFin()){ try{ const d = await AUTH.db.collection('socios').doc('dados').get(); SEC = d.exists ? d.data() : ENC.exemplo; SEC.__exemplo = !d.exists; }catch(e){ SEC = ENC.exemplo; } }
+    // cada um assina só os perfis que pode ver (as regras do banco também barram o resto)
+    PUB.pessoas.filter(p => podeVer(p.id)).forEach(p => AUTH.db.collection('pessoas').doc(p.id).onSnapshot(doc => { let mudou = false;
+      const d = doc.data() || {}; ['av', 'mood', 'timer', 'bio'].forEach(k => { if (!(k in d)) return; const key = k + '.' + doc.id, j = JSON.stringify(d[k]); if (MEM[key] !== j){ store.set(key, d[k], true); mudou = true; } });
+      if (mudou && $('#avm').hidden && !document.activeElement.closest('textarea,input')) render(); }, () => {}));
+    carregarDados(false);
   }
   if (!podeVer(VIEW) && VIEW !== 'inicio') VIEW = pid;
   if (store.get('view', null) == null) VIEW = pid;
   render();
   setTimeout(salaSync, 2500);   // garante que a sala do site já nasce com a miniatura de quem entrou
+}
+// dados reais: Notion, Google Agenda e planilha, via script do estúdio (confere o login a cada pedido)
+const DADOS = {ok: false, erro: null, quando: 0};
+async function dadosPost(body){
+  const url = (PUB.auth || {}).dados; if (!url) throw new Error('O endereço do script de dados ainda não foi configurado.');
+  const idToken = await AUTH.auth.currentUser.getIdToken();
+  const r = await fetch(url, {method: 'POST', headers: {'Content-Type': 'text/plain;charset=utf-8'}, body: JSON.stringify(Object.assign({idToken}, body))});
+  const j = await r.json(); if (j.erro) throw new Error(j.erro); return j;
+}
+let dadosT = 0;
+async function carregarDados(fresh){
+  if (AUTH.mode !== 'firebase' || !AUTH.me) return;
+  if (fresh){ DADOS.erro = null; if (!DADOS.ok) render(); }
+  try{
+    const r = await dadosPost({fresh: !!fresh});
+    PUB.proj = r.proj || {interno: {nome: 'Interno / estúdio', cod: 'ALT', slot: 0}};
+    PUB.perfis = r.perfis || {};
+    SEC = r.estudio ? {perfis: r.perfis, estudio: r.estudio} : (ehSocio() || ehFin() ? {perfis: r.perfis, estudio: null} : null);
+    DADOS.ok = true; DADOS.erro = null; DADOS.quando = Date.now(); DADOS.notion = r.notion; DADOS.avisos = r.avisos || [];
+  }catch(e){ DADOS.erro = e.message || String(e); }
+  const foco = document.activeElement && document.activeElement.closest('textarea,input');
+  if (!foco && $('#avm').hidden) render();
+  clearTimeout(dadosT); dadosT = setTimeout(() => carregarDados(false), 5 * 60 * 1000);
 }
 // escrita no banco: cada pessoa só grava os próprios dados (as regras do Firestore garantem isso)
 let syncT = {};
@@ -1326,7 +1369,7 @@ async function carregarConvites(email){
 }
 function perfilDe(id){
   const P = pessoa(id); const src = P && (P.socio || P.fin) && SEC ? SEC.perfis : PUB.perfis;
-  return (src && src[id]) || {foco: 'Bem-vindo(a) à alto! Seu painel vai se encher conforme as tarefas entrarem.', hoje: [], horas: {meta: 40, proj: []}, tarefas: [], agenda: {}, projetos: [], entregas: []};
+  return (src && src[id]) || {foco: DADOS.ok || AUTH.mode !== 'firebase' ? 'Sem tarefas abertas no Notion.' : 'Carregando…', hoje: [], horas: {meta: 40, proj: []}, tarefas: [], agenda: {}, projetos: [], entregas: []};
 }
 function acessosUI(){
   const el = $('#acc'); if (!el) return;
