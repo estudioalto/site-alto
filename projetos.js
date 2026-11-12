@@ -6,7 +6,9 @@
 (() => {
 const PROJETOS_URL = 'https://script.google.com/macros/s/AKfycbxdhnMk08NMd5UKvvilB5NZsnrH5aSGfmjwzejaleCaIUpaoGVa_dYnEjDKsU-BYCCyNw/exec';
 const TROCA_S = 7;             // segundos de cada projeto no destaque
-const img = (id, w) => 'https://lh3.googleusercontent.com/d/' + id + '=w' + w;
+// WebP no tamanho certo para a tela (o Google redimensiona e converte): bem mais leve que o JPEG original
+const img = (id, w) => 'https://lh3.googleusercontent.com/d/' + id + '=w' + w + '-rw';
+const larg = (fr, max) => Math.min(max, Math.max(600, Math.ceil(innerWidth * Math.min(devicePixelRatio || 1, 2) * fr / 200) * 200));
 const esc = s => String(s || '').replace(/[&<>"]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const $ = id => document.getElementById(id);
 const MIN = /^(de|da|do|das|dos|e|em|com|para)$/i;
@@ -43,8 +45,11 @@ const linha = p => [p.cod, CATS[p.cat], p.cidade].filter(Boolean).join(' · ');
 let LISTA = [];
 async function carregar(){
   let d = null;
-  try{ const c = JSON.parse(sessionStorage.getItem('alto.projetos') || 'null'); if (c && Date.now() - c.t < 6e5) d = c.d; }catch(e){}
-  if (!d){ d = await fetch(PROJETOS_URL).then(r => r.json()); try{ sessionStorage.setItem('alto.projetos', JSON.stringify({t: Date.now(), d})); }catch(e){} }
+  // a lista fica guardada no navegador: quem volta ao site vê as fotos na hora, e a lista se atualiza por trás
+  let c = null; try{ c = JSON.parse(localStorage.getItem('alto.projetos') || 'null'); }catch(e){}
+  const buscar = () => fetch(PROJETOS_URL).then(r => r.json()).then(n => { try{ localStorage.setItem('alto.projetos', JSON.stringify({t: Date.now(), d: n})); }catch(e){} return n; });
+  if (c && c.d && c.d.projetos){ d = c.d; if (Date.now() - c.t > 6e5) buscar().catch(() => {}); }
+  else d = await buscar();
   LISTA = (d.projetos || []).filter(p => p.imagens && p.imagens.length).map((p, i) => ({...p, ...titulo(p), cat: categoria(p), cod: 'PR—' + String(i + 1).padStart(2, '0')}));
   if (!LISTA.length) throw new Error('sem projetos');
 }
@@ -65,10 +70,10 @@ let P = null, k = 0, ultimoFoco = null;
 function mostrar(n){
   k = (n + P.imagens.length) % P.imagens.length;
   GI.classList.add('ld'); GI.onload = () => GI.classList.remove('ld');
-  GI.src = img(P.imagens[k], 1800); GI.alt = P.t + ' — imagem ' + (k + 1);
+  GI.src = img(P.imagens[k], larg(1, 2000)); GI.alt = P.t + ' — imagem ' + (k + 1);
   $('galCont').textContent = String(k + 1).padStart(2, '0') + ' / ' + String(P.imagens.length).padStart(2, '0');
   document.querySelectorAll('#galTumbs button').forEach((b, i) => b.setAttribute('aria-current', i === k));
-  [1, -1].forEach(d => { const id = P.imagens[(k + d + P.imagens.length) % P.imagens.length]; new Image().src = img(id, 1800); });
+  [1, -1].forEach(d => { const id = P.imagens[(k + d + P.imagens.length) % P.imagens.length]; new Image().src = img(id, larg(1, 2000)); });
 }
 function abrir(p){
   P = p; if (!P) return; ultimoFoco = document.activeElement;
@@ -78,7 +83,7 @@ function abrir(p){
   const dl = [['Local', P.cidade], ['Ano', P.ano], ['Área', P.area]].filter(x => x[1]);
   const D = $('galDl'); D.innerHTML = dl.map(([a, b]) => `<dt>${a}</dt><dd>${esc(b)}</dd>`).join(''); D.hidden = !dl.length;
   $('galDesc').innerHTML = (P.descricao || '').split(/\n\s*\n/).filter(Boolean).map(t => `<p>${esc(t).replace(/\n/g, '<br>')}</p>`).join('');
-  $('galTumbs').innerHTML = P.imagens.length > 1 ? P.imagens.map((id, j) => `<button data-t="${j}" aria-label="Imagem ${j + 1}"><img src="${img(id, 160)}" alt="" loading="lazy"></button>`).join('') : '';
+  $('galTumbs').innerHTML = P.imagens.length > 1 ? P.imagens.map((id, j) => `<button data-t="${j}" aria-label="Imagem ${j + 1}"><img src="${img(id, 200)}" alt="" loading="lazy"></button>`).join('') : '';
   G.querySelectorAll('.gal-seta').forEach(b => b.hidden = P.imagens.length < 2);
   G.hidden = false; requestAnimationFrame(() => G.classList.add('on'));
   document.documentElement.style.overflow = 'hidden';
@@ -99,11 +104,14 @@ GI.addEventListener('touchend', e => { if (x0 == null) return; const dx = e.chan
 function destaque(box){
   const cel = matchMedia('(max-width:760px)').matches, calmo = matchMedia('(prefers-reduced-motion: reduce)').matches;
   const imgs = [...box.querySelectorAll(':scope > img')], leg = $('dqLeg');
+  const W = cel ? Math.min(1400, larg(1.6, 1400)) : larg(1, 2000);   // celular: a foto ocupa a altura toda, então precisa ser mais larga que a tela
   // ordem sorteada a cada visita
   const fila = LISTA.map((p, i) => i); for (let i = fila.length - 1; i > 0; i--){ const j = Math.floor(Math.random() * (i + 1)); [fila[i], fila[j]] = [fila[j], fila[i]]; }
   let pos = -1, atual = null, frente = 0, timer = 0, ocupado = false;
   // carrega a capa; pula as pequenas demais para a tela cheia (e, no computador, as em pé)
-  const testar = p => new Promise(ok => { const im = new Image(); im.onload = () => ok(im.naturalWidth >= (cel ? 700 : 1300) && (cel || im.naturalWidth >= im.naturalHeight) ? im.src : null); im.onerror = () => ok(null); im.src = img(p.imagens[0], cel ? 1400 : 2400); });
+  const testar = p => new Promise(ok => { const im = new Image(); im.onload = () => ok(im.naturalWidth >= Math.min(cel ? 700 : 1300, W) && (cel || im.naturalWidth >= im.naturalHeight) ? im.src : null); im.onerror = () => ok(null); im.src = img(p.imagens[0], W); });
+  // já deixa a próxima foto baixando enquanto esta aparece
+  const aquecer = () => { for (let n = 1; n < fila.length; n++){ const q = LISTA[fila[(pos + n) % fila.length]]; if (!q.ruim){ new Image().src = img(q.imagens[0], W); break; } } };
   async function ir(dir){
     if (ocupado) return; ocupado = true; clearTimeout(timer);
     let src = null, p = null;
@@ -115,7 +123,7 @@ function destaque(box){
     leg.classList.add('troca');
     requestAnimationFrame(() => { nova.classList.add('on'); velha.classList.remove('on'); });
     setTimeout(() => { $('dqTit').innerHTML = esc(p.t) + (p.sub ? ` <span>· ${esc(p.sub)}</span>` : ''); $('dqSub').textContent = linha(p); leg.hidden = false; leg.classList.remove('troca'); box.classList.remove('sk'); ocupado = false; }, leg.hidden ? 0 : 450);
-    agenda();
+    agenda(); aquecer();
   }
   function agenda(){ clearTimeout(timer); if (!calmo) timer = setTimeout(() => { if (document.hidden || !G.hidden || !naTela) return agenda(); ir(1); }, TROCA_S * 1000); }
   let naTela = true; new IntersectionObserver(es => { naTela = es[0].isIntersecting; }).observe(box);
@@ -126,8 +134,9 @@ function destaque(box){
 
 /* ---------- projetos.html: todos ---------- */
 function lista(grid){
+  const cards = larg(innerWidth > 900 ? 0.36 : 1, 1000);
   grid.innerHTML = LISTA.map((p, i) => `<a class="plate in" data-cat="${p.cat}" data-i="${i}" href="#${esc(p.id)}">
-    <div class="mat"><div class="img"><img src="${img(p.imagens[0], 1000)}" alt="${esc(p.t)}" loading="lazy" decoding="async"></div>
+    <div class="mat"><div class="img"><img src="${img(p.imagens[0], cards)}" alt="${esc(p.t)}" loading="lazy" decoding="async"></div>
     <div class="legend"><h3>${esc(p.t)}${p.sub ? ` <span style="opacity:.75;font-weight:400">· ${esc(p.sub)}</span>` : ''}</h3><span class="mono">${esc(linha(p))}</span></div></div></a>`).join('');
   const sh = document.querySelector('#projetos .sec-head .mono'); if (sh) sh.textContent = 'Pranchas 01—' + String(LISTA.length).padStart(2, '0');
   grid.addEventListener('click', e => { const a = e.target.closest('.plate[data-i]'); if (!a) return; e.preventDefault(); abrir(LISTA[+a.dataset.i]); });
