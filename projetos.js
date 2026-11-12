@@ -133,7 +133,7 @@ function destaque(box){
     const nova = imgs[frente], velha = imgs[1 - frente];
     nova.src = src; nova.alt = p.t;
     leg.classList.add('troca');
-    requestAnimationFrame(() => { nova.classList.add('on'); velha.classList.remove('on'); });
+    setTimeout(() => { nova.classList.add('on'); velha.classList.remove('on'); }, 30);
     setTimeout(() => { $('dqTit').innerHTML = esc(p.t) + (p.sub ? ` <span>· ${esc(p.sub)}</span>` : ''); $('dqSub').textContent = linha(p); leg.hidden = false; leg.classList.remove('troca'); box.classList.remove('sk'); ocupado = false; }, leg.hidden ? 0 : 450);
     agenda(); aquecer();
   }

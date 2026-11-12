@@ -109,7 +109,8 @@ canvas.vox:active{cursor:grabbing}
 .today li.now{background:var(--accent-soft)}
 .today .h{font-family:var(--mono);font-size:12px;color:var(--text-secondary)}
 .dot{width:8px;height:8px;border-radius:50%;background:var(--s0)}
-.dot.obra{background:var(--accent)} .dot.reuniao{background:var(--text-primary)} .dot.interno{background:var(--s0)}
+.dot.obra{background:var(--accent)} .dot.reuniao{background:var(--text-primary)} .dot.interno{background:var(--s0)} .dot.tarefa{background:transparent;box-shadow:inset 0 0 0 2px var(--accent)}
+.today-vazio{color:var(--text-secondary);font-size:13px;line-height:1.5;margin:6px 0 0}
 .pill{font-size:11px;padding:2px 8px;border-radius:999px;border:1px solid var(--line-2);color:var(--text-secondary);white-space:nowrap}
 .legend{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:12px;color:var(--text-secondary);margin-top:10px}
 .legend span{display:inline-flex;align-items:center;gap:6px}
@@ -186,6 +187,15 @@ canvas.vox:active{cursor:grabbing}
 .timer{background:var(--surface-2);border-radius:12px;padding:12px;margin-bottom:14px}
 .timer.on{background:var(--accent-soft);outline:1.5px solid var(--accent)}
 .tsel{display:flex;flex-wrap:wrap;gap:5px;margin-bottom:10px}
+.tpick{position:relative;margin-bottom:10px}
+.tpk{width:100%;display:flex;align-items:center;gap:8px;border:1px solid var(--line-2);background:var(--surface-1);border-radius:10px;padding:8px 12px;font-size:13px;font-weight:600;color:var(--text-primary);cursor:pointer;text-align:left}
+.tpk span{flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap} .tpk b{color:var(--text-secondary);font-weight:400}
+.tpk i,.tlist i{width:9px;height:9px;border-radius:2px;flex:none}
+.tpop{position:absolute;z-index:20;left:0;right:0;top:calc(100% + 4px);background:var(--surface-1);border:1px solid var(--line-2);border-radius:12px;box-shadow:0 12px 32px rgba(0,0,0,.14);padding:8px}
+.tpop[hidden]{display:none} .tpop input{width:100%;box-sizing:border-box;border:1px solid var(--line-2);border-radius:8px;padding:7px 10px;font:inherit;font-size:13px;background:var(--surface-2);color:var(--text-primary);margin-bottom:6px}
+.tlist{max-height:260px;overflow:auto} .tlist .tg{font-family:var(--mono,monospace);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-secondary);padding:8px 6px 4px}
+.tlist button{display:flex;align-items:center;gap:8px;width:100%;border:0;background:none;padding:7px 6px;border-radius:7px;font:inherit;font-size:13px;color:var(--text-primary);cursor:pointer;text-align:left}
+.tlist button:hover{background:var(--surface-2)} .tlist [hidden]{display:none}
 .tsel button{white-space:nowrap;flex:none;border:1px solid var(--line-2);background:var(--surface-1);border-radius:999px;padding:4px 10px 4px 8px;font-size:12px;display:inline-flex;align-items:center;gap:6px;min-height:30px;color:var(--text-secondary)}
 .tsel button i{width:8px;height:8px;border-radius:2px}
 .tsel button[aria-pressed="true"]{border-color:var(--text-primary);color:var(--text-primary);font-weight:600;box-shadow:inset 0 0 0 1px var(--text-primary)}
@@ -310,7 +320,7 @@ html.one .moods{margin-top:6px}html.one .moods .mk{display:none}
 .me-btn .ini{width:26px;height:26px;font-size:12px}
 @media (max-width:760px){.login{grid-template-columns:1fr;margin-top:12px}.lg-art{min-height:260px}}
 /* somente leitura (painel de outra pessoa) */
-.readonly [data-edit-av],.readonly .tsel,.readonly #tgo,.readonly .tlog .x,.readonly .spin{display:none!important}
+.readonly [data-edit-av],.readonly .tsel,.readonly .tpick,.readonly #tgo,.readonly .tlog .x,.readonly .spin{display:none!important}
 .readonly .moods button:not([aria-pressed="true"]),.readonly .moods .mk{display:none}
 .readonly .moods button{pointer-events:none}
 .readonly .tasks input{pointer-events:none;opacity:.5}
@@ -684,10 +694,11 @@ function renderPerfil(app, id){
     </section>
     <section class="card sp5 a-hoje"><h2><span class="cod">01</span>Hoje<span class="rt">${D.agendaOk === false ? 'agenda do Google não compartilhada' : D.hoje.length + ' compromissos'}</span></h2>
       <ul class="today fl">${D.hoje.map((h, i) => { const [hh, mm] = h.h.split(':').map(Number), m = hh*60+mm, nxt = D.hoje[i+1] ? toMin(D.hoje[i+1].h) : 1e9;
-        return `<li class="${m <= nowH && nowH < nxt ? 'now' : ''}"><span class="h">${h.h}</span><span class="dot ${h.tipo}"></span><span>${esc(h.t)}</span><span class="pill">${{obra:'obra',reuniao:'reunião',interno:'interno'}[h.tipo]}</span></li>` }).join('')}</ul>
-      <div class="legend"><span><i style="background:var(--accent);border-radius:50%"></i>obra / visita</span><span><i style="background:var(--text-primary);border-radius:50%"></i>reunião</span><span><i style="background:var(--s0);border-radius:50%"></i>interno</span></div>
+        return `<li class="${m <= nowH && nowH < nxt ? 'now' : ''}"><span class="h">${h.h}</span><span class="dot ${h.tipo}"></span><span>${esc(h.t)}</span><span class="pill">${{obra:'obra',reuniao:'reunião',interno:'interno',tarefa:'tarefa'}[h.tipo]}</span></li>` }).join('')}</ul>
+      ${D.hoje.length ? '' : `<p class="today-vazio">Nada marcado para hoje. Aqui entram os eventos de hoje do seu Google Agenda e as tarefas do Notion com <b>data de hoje e horário</b>.</p>`}
+      <div class="legend"><span><i style="background:var(--accent);border-radius:50%"></i>obra / visita</span><span><i style="background:var(--text-primary);border-radius:50%"></i>reunião</span><span><i style="background:var(--s0);border-radius:50%"></i>interno</span><span><i style="box-shadow:inset 0 0 0 2px var(--accent);border-radius:50%"></i>tarefa do Notion</span></div>
     </section>
-    <div class="sp4 col"><section class="card a-hrs"><h2><span class="cod">02</span>Horas da semana<span class="rt">Controle de Horas</span></h2>
+    <div class="sp4 col"><section class="card a-hrs"><h2><span class="cod">02</span>Horas da semana<span class="rt"><a class="link" href="https://www.notion.so/f930d0bde8164828b4ce1a5dc16cbc84" target="_blank" rel="noopener">Controle de Horas ↗</a></span></h2>
       <div class="timer" id="tmr"></div>
       <div id="hsum"></div>
     </section>
@@ -1018,16 +1029,22 @@ function paintHoras(pid, D){
     <div class="legend">${H.proj.map(([p, h]) => `<span><i style="background:${pc(p)}"></i>${esc(shortP(p))} · ${hrsFmt(h)}h</span>`).join('')}</div>`;
   drawHoras($('#hrs'), H);
 }
+let tpickFora = false;
 function timerUI(pid, D){
+  if (!tpickFora){ tpickFora = true; document.addEventListener('click', e => { if (!e.target.closest('.tpick')){ const p = $('#tpop'); if (p && !p.hidden){ p.hidden = true; const b = $('#tpk'); if (b) b.setAttribute('aria-expanded', 'false'); } } }); }
   const box = $('#tmr'); if (!box) return;
-  const opts = [...new Set([...D.projetos.map(x => x.p), 'interno'])];
+  const meus = D.projetos.map(x => x.p), outros = Object.keys(PUB.proj).filter(k => k !== 'interno' && !meus.includes(k)).sort((a, b) => proj(a).nome.localeCompare(proj(b).nome, 'pt'));
+  const opts = [...new Set([...meus, 'interno', ...outros])];
+  const item = p => `<button type="button" data-tp="${p}" data-n="${esc(proj(p).nome.toLowerCase())}"><i style="background:${pc(p)}"></i>${esc(proj(p).nome)}</button>`;
   const paint = () => {
     const t = tGet(pid), sel = t.run ? t.run.p : (t.sel && opts.includes(t.sel) ? t.sel : opts[0]);
     const today = new Date(); today.setHours(0, 0, 0, 0);
     const hoje = t.log.filter(l => l.fim >= +today).reverse();
     const totHoje = hoje.reduce((a, l) => a + l.fim - l.ini, 0) + (t.run ? Date.now() - t.run.t0 : 0);
     box.classList.toggle('on', !!t.run);
-    box.innerHTML = `<div class="tsel" role="group" aria-label="Projeto do cronômetro">${opts.map(p => `<button data-tp="${p}" aria-pressed="${p === sel}"><i style="background:${pc(p)}"></i>${esc(shortP(p))}</button>`).join('')}</div>
+    box.innerHTML = `<div class="tpick"><button type="button" class="tpk" id="tpk" aria-haspopup="listbox" aria-expanded="false"><i style="background:${pc(sel)}"></i><span>${esc(proj(sel).nome)}</span><b>▾</b></button>
+      <div class="tpop" id="tpop" hidden><input id="tq" type="search" placeholder="Buscar projeto…" autocomplete="off">
+        <div class="tlist">${meus.length ? `<div class="tg">meus projetos</div>${meus.map(item).join('')}` : ''}<div class="tg">estúdio</div>${item('interno')}${outros.length ? `<div class="tg">outros projetos</div>${outros.map(item).join('')}` : ''}</div></div></div>
       <div class="trow"><div class="clock" id="clk">${t.run ? hms(Date.now() - t.run.t0) : '00:00:00'}<small>${t.run ? 'rodando em ' + esc(proj(t.run.p).nome) + ' desde ' + hhmm(t.run.t0) : 'Hoje: ' + hm(totHoje) + ' cronometrados'}</small></div>
       <button class="tgo" id="tgo" aria-label="${t.run ? 'Parar' : 'Iniciar'} cronômetro">${t.run ? '■ Parar' : '▶ Iniciar'}</button></div>
       ${hoje.length ? `<ul class="tlog">${hoje.map(l => `<li><i style="background:${pc(l.p)}"></i><span>${esc(shortP(l.p))} <span class="muted">${hhmm(l.ini)}–${hhmm(l.fim)}</span></span><b class="num">${hm(l.fim - l.ini)}</b><button class="x" data-del="${l.ini}" title="Apagar registro" aria-label="Apagar registro">✕</button></li>`).join('')}</ul>` : ''}`;
@@ -1036,6 +1053,7 @@ function timerUI(pid, D){
   box.onclick = e => {
     if (!podeEditar(pid)) return;
     const b = e.target.closest('button'); if (!b) return;
+    if (b.id === 'tpk'){ const pop = $('#tpop'), abre = pop.hidden; pop.hidden = !abre; b.setAttribute('aria-expanded', abre); if (abre){ const q = $('#tq'); q.value = ''; q.oninput = () => { const v = q.value.toLowerCase().trim(); pop.querySelectorAll('[data-tp]').forEach(x => x.hidden = v && !x.dataset.n.includes(v)); pop.querySelectorAll('.tg').forEach(g => g.hidden = !!v); }; q.focus(); } return; }
     const t = tGet(pid);
     if (b.dataset.tp){ if (t.run && t.run.p !== b.dataset.tp) tStart(pid, b.dataset.tp); else { t.sel = b.dataset.tp; tSet(pid, t); } }
     else if (b.id === 'tgo'){ if (t.run) tStop(pid); else tStart(pid, t.sel && opts.includes(t.sel) ? t.sel : opts[0]); }
