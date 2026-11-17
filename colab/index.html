@@ -502,6 +502,39 @@ footer{margin-top:28px;font-size:11.5px;color:var(--text-muted);display:flex;jus
 }
 
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
+/* ferramentas da alto */
+.hub{margin-top:34px}
+.hub-h{display:flex;align-items:flex-end;justify-content:space-between;gap:18px;flex-wrap:wrap;margin-bottom:14px}
+.hub-h h2{font-size:22px;font-weight:600;letter-spacing:-.01em;display:flex;align-items:center;gap:10px}
+.hub-h .sec{max-width:440px;font-size:13px}
+.hub-g{margin-top:18px}
+.hub-gt{font-family:var(--mono);font-size:11px;text-transform:uppercase;letter-spacing:.14em;color:var(--text-secondary);margin-bottom:10px;display:flex;gap:10px;align-items:baseline}
+.hub-gt small{font-size:10.5px;color:var(--text-muted);letter-spacing:.08em}
+.fgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px}
+.fcard{background:var(--surface-1);border:1px solid var(--line);border-radius:var(--r);padding:16px 18px;display:flex;flex-direction:column;gap:8px;position:relative;overflow:hidden;transition:border-color .15s,transform .15s}
+.fcard::before{content:"";position:absolute;inset:0 0 auto 0;height:3px;background:linear-gradient(90deg,var(--accent),color-mix(in srgb,var(--accent) 15%,transparent))}
+.fcard[data-g="fin"]::before{background:linear-gradient(90deg,var(--warn),color-mix(in srgb,var(--warn) 15%,transparent))}
+.fcard[data-g="socio"]::before{background:linear-gradient(90deg,var(--text-primary),color-mix(in srgb,var(--text-primary) 10%,transparent))}
+.fcard:hover{border-color:var(--line-2);transform:translateY(-1px)}
+.fcard .fk{display:flex;justify-content:space-between;gap:8px;font-family:var(--mono);font-size:10.5px;text-transform:uppercase;letter-spacing:.1em;color:var(--text-muted)}
+.fcard h3{font-size:16px;font-weight:600}
+.fcard p{font-size:13px;color:var(--text-secondary);line-height:1.45}
+.fcard .fnota{font-size:11.5px;color:var(--text-muted);border-left:2px solid var(--accent-soft);padding-left:8px}
+.fcard .fact{margin-top:auto;padding-top:6px;display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.fcard .btn{text-decoration:none;display:inline-flex;align-items:center}
+.fcard a.link{text-decoration:none}
+.badge.fin{color:var(--warn);background:color-mix(in srgb,var(--warn) 10%,transparent);border:1px dashed color-mix(in srgb,var(--warn) 40%,transparent)}
+.fcard.ext .ext-body{display:none}
+.fcard.ext.open{grid-column:1/-1}
+.fcard.ext.open .ext-body{display:block}
+.ext-body input{width:100%;max-width:300px;height:36px;border:1px solid var(--line-2);background:var(--surface-2);color:var(--text-primary);border-radius:10px;padding:0 12px;font:inherit;margin:4px 0 8px}
+.ext-l{list-style:none;columns:2;column-gap:28px}
+@media (max-width:760px){.ext-l{columns:1}}
+.ext-l li{display:grid;grid-template-columns:1fr auto auto auto;gap:12px;align-items:center;padding:7px 0;border-bottom:1px solid var(--line);font-size:13px;break-inside:avoid}
+.ext-l .es{color:var(--text-muted);font-size:10.5px}
+.ext-l .dl{color:var(--accent-ink);font-weight:600;font-size:12px;text-decoration:none;padding:3px 8px;border-radius:999px;background:var(--accent-soft)}
+.ext-l .dl:hover{background:var(--accent);color:#fff}
+.fcard.ext .ext-body .fnota{margin-top:10px}
 </style>
 </head>
 <body>
@@ -634,6 +667,96 @@ function render(){
 }
 
 /* ============ tela inicial ============ */
+/* ============ ferramentas da alto (página inicial) ============ */
+// g = quem vê: 'equipe' (todos), 'fin' (sócios + financeiro), 'socio' (só sócios)
+// href = cópia hospedada aqui no site (pasta ferramentas/); claude = original no claude.ai (salva dados, Notion, IA)
+const CL = id => 'https://claude.ai/artifact/' + id;
+const FERR = [
+  {g:'equipe', t:'Gerador de fundos', d:'Capas e fundos de grupo no padrão alto, em PNG ou animados em MP4.', f:'capas', claude:CL('Xh4k52avy6fkUrp7K67Tox'), tag:'ferramenta'},
+  {g:'equipe', t:'barco · fornecedores', d:'Fornecedores indicados no grupo de arquitetos de Jundiaí, com busca por categoria.', f:'barco', claude:CL('9JyePw8iHCL5c99yMKioPx'), tag:'ferramenta'},
+  {g:'equipe', t:'Design System alto', d:'Cores, Glora, logos, componentes e regras para papelaria, pranchas e redes.', claude:CL('FkrFHtC5BwsDFgWfpmFShs'), tag:'referência'},
+  {g:'equipe', t:'Padrão de Layers (CAD)', d:'As 56 layers, espessuras, plotagem alto.ctb, template e rotinas LISP.', claude:CL('CXMQHVsbmgm2FZKnpU2kye'), tag:'referência'},
+  {g:'equipe', t:'Manual · alto Unir Faces', d:'Como instalar e usar a extensão que limpa faces coplanares no SketchUp.', claude:CL('8EBPmw7rjnVmQT6jVrR37h'), tag:'manual'},
+  {g:'fin', t:'Precificação alto', d:'Custo-hora, margem, impostos e simulador de preço do escritório.', f:'precificacao', claude:CL('RnCVbMab79P26QURavUDuX'), tag:'financeiro', nota:'Aqui abre com os valores padrão; os valores salvos do escritório ficam na versão do Claude.'},
+  {g:'fin', t:'Gerador de Propostas', d:'Proposta de honorários com a calculadora por horas, PDF no padrão alto.', f:'propostas', claude:CL('H2LZ7MQPGyS195qBmeaai3'), tag:'comercial', nota:'Aqui gera e baixa o PDF; salvar propostas, ler planta com IA e exportar para o Notion/Drive só na versão do Claude.'},
+  {g:'fin', t:'Viabilidade alto', d:'Programa, custo de obra pelo CUB-SP e honorários, com proposta em PDF.', f:'viabilidade', claude:CL('1g7fsifjucsx1chP2CashA'), tag:'comercial', nota:'Ler planta ou descrição com IA só funciona na versão do Claude.'},
+  {g:'fin', t:'Como funciona a calculadora', d:'Passo a passo do cálculo de honorários por horas, com exemplo real.', claude:CL('BMfEUcPv9FLEqksWQvJnc1'), tag:'documento'},
+  {g:'fin', t:'Análise da calculadora', d:'Comparação com as últimas propostas, CAU, CUB e mercado de SP.', claude:CL('9dQTsPzQYZUuTrqqUwN6GS'), tag:'documento'},
+];
+// extensões do SketchUp (arquivos .rbz no Drive da alto)
+const DRV = id => 'https://drive.google.com/uc?export=download&id=' + id;
+const EXT = [
+  ['alto (barra principal)', '1oU_9yq3zU5Xdd2pSrwULk7yPAl8RBYBu', '8,3 MB'],
+  ['Armários', '1BLPI645kz_sAgXM3M2iPccj3hYTAm8x8', '284 KB'],
+  ['Bancadas', '1IN7h4yUVatwJqYZ9ROu5v-kX9kaklsTA', '9,7 MB'],
+  ['Caixilhos', '1xZyqx1oawWiuQmAEEYJenGpHqVGEJmMi', '147 KB'],
+  ['Cobogós', '1sgBWO8Xmh5pVqNAK4Yqrq31vXBRjlGDE', '1,7 MB'],
+  ['Cozinha', '1rDTNpsw017LIHxkVBfwmBOPqAN9wZQxi', '1,4 MB'],
+  ['Escadas', '1PANbU4TP6dvG1eUQyIqhFItUEwU13be6', '348 KB'],
+  ['Esquadrias antigas', '17LXn94C78eWw8UCjSAbZZg3kIN-prvEl', '173 KB'],
+  ['Exportar cenas PNG', '18lOazBmxAd12rvk-LSUjcWmDAxVRWWio', '3 KB'],
+  ['Gerador de biribas', '19zA9mbWvNCTUQd1TY1Wy_mta4N3oT4e-', '4 KB'],
+  ['Guarda-corpos', '1AAZTCqf7-yBavvlx-PDJyGmqksX0kFMb', '1,9 MB'],
+  ['Lajes', '19exeXBidhvM-pmsCZKARbODoVFN3dqmA', '272 KB'],
+  ['Paredes', '10JYt5pSZUAb8TLoLmoOrjabF-xEFUWQE', '1,9 MB'],
+  ['Pisos', '12CCf4qazhcx99d24xP2tf0ZWgslrL1Vl', '329 KB'],
+  ['Pontos', '1_7zsDZUav9RRDfVYJ9srwASCyG-tErQB', '126 KB'],
+  ['Portas', '161CAMh2TFljo8s9fp5rsG3_soPeXaloA', '153 KB'],
+  ['Scatter', '1bj9oKoYlubSwwYTM3GXvkR1sMDbBqUO3', '6 KB'],
+  ['Telhados', '1n3uy_fCoYVFEMNX2MGlhbWKvbUfwQ3u8', '3,2 MB'],
+  ['Toldos', '1TwFM-yzPpWMNIHLSCcG3A6V_7PmKlNOR', '773 KB'],
+  ['Unir Faces', '1aLHsk3m7D4cuCDc0nxUNDbtAfvMKZRjs', '109 KB', CL('8EBPmw7rjnVmQT6jVrR37h')],
+  ['Utilidades alto', '1tMrshK_SJxqWO66tmO9JSaF0pv3Bz5ZG', '15 KB'],
+  ['Vigas', '1c-DezHjt6ixJKIjdv8FkICuThITCbjFB', '14 KB'],
+];
+
+const GRP = {equipe:{n:'Equipe', k:'para todo mundo'}, fin:{n:'Financeiro', k:'sócios + financeiro'}, socio:{n:'Sócios', k:'só sócios'}};
+const ferrCard = f => `<article class="fcard" data-g="${f.g}">
+  <div class="fk"><span>${esc(f.tag)}</span>${f.g !== 'equipe' ? `<span class="fl-lock">🔒 ${GRP[f.g].k}</span>` : ''}</div>
+  <h3>${esc(f.t)}</h3><p>${esc(f.d)}</p>
+  ${f.nota ? `<p class="fnota">${esc(f.nota)}</p>` : ''}
+  <div class="fact">${f.f ? `<button class="btn" type="button" data-ferr="${f.f}">Abrir</button><a class="link" href="${f.claude}" target="_blank" rel="noopener">versão no Claude ↗</a>` : `<a class="btn" href="${f.claude}" target="_blank" rel="noopener">Abrir no Claude ↗</a>`}</div></article>`;
+const extRow = e => `<li data-q="${esc(e[0].toLowerCase())}"><span class="en">${esc(e[0])}</span><span class="es mono">${e[2]}</span>${e[3] ? `<a class="link" href="${e[3]}" target="_blank" rel="noopener">manual</a>` : '<span></span>'}<a class="dl" href="${DRV(e[1])}" target="_blank" rel="noopener" download title="Baixar .rbz">↓ .rbz</a></li>`;
+const extCard = () => `<article class="fcard ext" data-g="equipe" id="extCard">
+  <div class="fk"><span>sketchup</span><span>${EXT.length} extensões</span></div>
+  <h3>Extensões SketchUp da alto</h3>
+  <p>As extensões feitas pela alto, sempre na versão mais recente. No SketchUp: <b>Window → Extension Manager → Install Extension</b> e escolha o .rbz.</p>
+  <div class="ext-body"><input id="extQ" type="search" placeholder="Buscar extensão…" aria-label="Buscar extensão"><ul class="ext-l">${EXT.map(extRow).join('')}</ul>
+    <p class="fnota">Os arquivos vêm do Drive da alto: entre no navegador com uma conta que tenha acesso à pasta.</p></div>
+  <div class="fact"><button class="btn" type="button" id="extTg" aria-expanded="false">Ver extensões</button></div></article>`;
+function ferramentasHTML(){
+  if (!AUTH.me) return '';
+  const vis = FERR.filter(f => alcanca(f.g));
+  const blocos = ['equipe', 'fin', 'socio'].filter(g => vis.some(f => f.g === g));
+  return `<section class="hub" id="hub">
+    <div class="hub-h"><h2><span class="cod">F—00</span>Ferramentas da alto</h2><p class="sec">Os artefatos que criamos no Claude, num lugar só. Cada pessoa vê só o que é do seu nível de acesso.</p></div>
+    ${blocos.map(g => `<div class="hub-g"><div class="hub-gt">${GRP[g].n}<small>${GRP[g].k}</small></div><div class="fgrid">${vis.filter(f => f.g === g).map(ferrCard).join('')}${g === 'equipe' ? extCard() : ''}</div></div>`).join('')}
+  </section>`;
+}
+// abre a cópia protegida: o script do estúdio confere o login e o nível antes de entregar o arquivo
+async function abrirFerramenta(nome, btn){
+  const win = window.open('', '_blank');
+  if (win) win.document.write('<p style="font:14px system-ui;padding:24px;color:#5a5149">Abrindo a ferramenta da alto…</p>');
+  const txt = btn.textContent; btn.disabled = true; btn.textContent = 'Abrindo…';
+  try{
+    const r = await dadosPost({acao: 'ferramenta', nome});
+    const url = URL.createObjectURL(new Blob([r.html], {type: 'text/html'}));
+    if (win) win.location.href = url; else location.href = url;
+  }catch(e){ if (win) win.close(); aviso('Não consegui abrir: ' + e.message); }
+  btn.disabled = false; btn.textContent = txt;
+}
+function ferramentasUI(){
+  document.querySelectorAll('[data-ferr]').forEach(b => b.onclick = () => abrirFerramenta(b.dataset.ferr, b));
+  const tg = $('#extTg'); if (tg) tg.onclick = () => { const c = $('#extCard'), o = !c.classList.contains('open'); c.classList.toggle('open', o); tg.setAttribute('aria-expanded', o); tg.textContent = o ? 'Fechar' : 'Ver extensões'; if (o) $('#extQ').focus(); };
+  const q = $('#extQ'); if (!q) return;
+  q.oninput = () => { const v = q.value.trim().toLowerCase(); document.querySelectorAll('.ext-l li').forEach(li => li.hidden = !!v && !li.dataset.q.includes(v)); };
+}
+
+// níveis: equipe (todos) < fin (sócios + financeiro) < socio
+const NIV = {equipe: 0, fin: 1, socio: 2};
+function nivel(){ if (!AUTH.me) return null; return ehSocio() ? 'socio' : ehFin() ? 'fin' : 'equipe'; }
+const alcanca = g => { const n = nivel(); return n != null && NIV[n] >= NIV[g]; };
+
 function renderInicio(app){
   const d = TODAY;
   app.innerHTML = `
@@ -645,8 +768,10 @@ function renderInicio(app){
     ${PUB.pessoas.filter(p => podeVer(p.id)).map(p => `<button data-go="${p.id}"><div class="pav">${avatarHTML(p.id)}</div><div class="nm">${p.nome}</div><div class="pp">${esc(p.papel)}</div>${moodGet(p.id) ? `<div class="mchip">${MOODS[moodGet(p.id)].i} ${MOODS[moodGet(p.id)].l}</div>` : ''}${p.socio && !OPEN ? '<div class="lk">🔒 sócios</div>' : ''}</button>`).join('')}
     ${podeVer('estudio') ? '' : '<!--'}<button data-go="estudio"><canvas class="vox av" data-house="1" width="160" height="200"></canvas><div class="nm">Estúdio alto</div><div class="pp">Saúde financeira e futuro</div>${OPEN ? '' : '<div class="lk">🔒 sócios</div>'}</button>${podeVer('estudio') ? '' : '-->'}
   </div>
+  ${ferramentasHTML()}
   ${foot()}`;
   mountAvatars(app, false);
+  ferramentasUI();
   app.querySelectorAll('canvas[data-house]').forEach(c => VOX.add(c, houseModel(SEC && SEC.estudio ? metaPct(SEC.estudio) : 1), {auto:true, drag:false, scale:.92, grain:.28, foot:[8, 1, 6], bg:(c2, W, H) => paintBlobs(c2, W, H, 7)}));
 }
 const foot = () => `<footer><span>alto · painel interno</span><span>Cronômetro salvo neste navegador · Atalhos: <b>?</b> tutorial · <b>T</b> tudo numa tela · <b>H</b> oculta valores${OPEN ? '' : ' · <b>L</b> bloqueia'}</span></footer>`;
